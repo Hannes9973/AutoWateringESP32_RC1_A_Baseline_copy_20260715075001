@@ -81,7 +81,23 @@ case PotState::WATERING:
     if(_status.weight >= _status.targetWeight)
     {
         stopWatering();
-    }
+    }if(_status.weight >= _status.targetWeight)
+{
+    stopWatering();
+}
+else if(millis() - _status.wateringTime > TANK_CHECK_TIME &&
+        (_status.weight - _status.wateringStartWeight) < MIN_WEIGHT_GAIN)
+{
+    stopWatering();
+
+    _status.state = PotState::ERROR_TANK;
+}
+else if(millis() - _status.wateringTime > MAX_PUMP_RUNTIME)
+{
+    stopWatering();
+
+    _status.state = PotState::ERROR_TIMEOUT;
+}
     else if(millis() - _status.wateringTime > MAX_PUMP_RUNTIME)
     {
         stopWatering();
@@ -115,7 +131,9 @@ void PotManager::startWatering()
         _status.watering = true;
 
         _status.wateringTime = millis();
+        _status.wateringStartWeight = _status.weight;
     _status.state = PotState::WATERING;
+    
 }
 }
 

@@ -127,7 +127,9 @@ struct PotStatus
 
     uint32_t wateringTime = 0;
 
-    uint32_t wateringCount = 0;
+float wateringStartWeight = 0.0f;
+
+uint32_t wateringCount = 0;
 };
 
 //=========================================================

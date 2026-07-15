@@ -101,7 +101,8 @@ constexpr uint32_t MAX_PUMP_RUNTIME = 15000UL;
 constexpr float DEFAULT_START_WEIGHT = 950.0f;
 
 constexpr float DEFAULT_TARGET_WEIGHT = 1100.0f;
-
+constexpr float MIN_WEIGHT_GAIN = 5.0f;          // mindestens 5 g Zunahme
+constexpr uint32_t TANK_CHECK_TIME = 5000UL;     // nach 5 Sekunden prüfen
 constexpr float MIN_ALLOWED_WEIGHT = 0.0f;
 
 constexpr float MAX_ALLOWED_WEIGHT = 5000.0f;
