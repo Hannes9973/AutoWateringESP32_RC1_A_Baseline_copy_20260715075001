@@ -130,6 +130,7 @@ struct PotStatus
 float wateringStartWeight = 0.0f;
 
 uint32_t wateringCount = 0;
+uint32_t errorCount = 0;
 };
 
 //=========================================================
