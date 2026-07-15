@@ -36,9 +36,10 @@ updateState();
 
     case PotState::WATERING:
         if(_status.weight>=_status.targetWeight){
-            _pump->off(_pot);
-            _status.watering=false;
-            _status.state=PotState::TARGET_REACHED;
+           stopWatering();
+
+_status.state = PotState::TARGET_REACHED;
+
         }
         break;
 
@@ -104,4 +105,10 @@ void PotManager::startWatering()
 
 void PotManager::stopWatering()
 {
+    if (_status.watering)
+    {
+        _pump->off(_pot);
+
+        _status.watering = false;
+    }
 }
