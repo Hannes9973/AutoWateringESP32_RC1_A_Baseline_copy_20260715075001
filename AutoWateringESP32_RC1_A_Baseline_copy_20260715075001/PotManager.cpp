@@ -59,33 +59,40 @@ const char* PotManager::getStateName() const{
 void PotManager::updateState()
 {
     switch(_status.state)
+{
+case PotState::WAIT_FOR_DRY:
+
+    if(_status.weight < _status.startWeight)
     {
-        case PotState::WAIT_FOR_DRY:
+        startWatering();
+    }
+
+    break;
+
 case PotState::WATERING:
 
     if(_status.weight >= _status.targetWeight)
     {
         stopWatering();
     }
+    else if(millis() - _status.wateringTime > MAX_PUMP_RUNTIME)
+    {
+        stopWatering();
+        _status.state = PotState::ERROR_TIMEOUT;
+    }
 
     break;
-            if(_status.weight < _status.startWeight)
-            {
-                startWatering();
-            }
 
-            break;
-
-        case PotState::TARGET_REACHED:
+case PotState::TARGET_REACHED:
 
     stopWatering();
-
     _status.state = PotState::WAIT_FOR_DRY;
 
     break;
-    default:
-            break;
-    }
+
+default:
+    break;
+}
 }
 
 void PotManager::startWatering()
