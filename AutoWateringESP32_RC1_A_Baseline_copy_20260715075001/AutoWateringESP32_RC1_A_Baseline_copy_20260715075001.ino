@@ -85,7 +85,7 @@ void loop()
     Scale.update();
     Pump.update();
 
-    Command.update(Scale, Pump, Storage);
+    Command.update(Scale, Pump, Storage, Pot);
 
     for(uint8_t i=0;i<NUMBER_OF_POTS;i++)
     {
