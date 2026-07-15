@@ -28,7 +28,7 @@ updateState();
 {
     startWatering();
 
-    _status.state = PotState::WATERING;
+    
 }
             
         
@@ -81,10 +81,7 @@ void PotManager::updateState()
 {
     switch(_status.state)
     {
-        case PotState::TARGET_REACHED:
-            _status.state = PotState::WAIT_FOR_DRY;
-            break;
-
+        
         default:
             break;
     }
@@ -99,7 +96,8 @@ void PotManager::startWatering()
         _status.watering = true;
 
         _status.wateringTime = millis();
-    }
+    _status.state = PotState::WATERING;
+}
 }
 
 
@@ -110,5 +108,6 @@ void PotManager::stopWatering()
         _pump->off(_pot);
 
         _status.watering = false;
+        _status.state = PotState::TARGET_REACHED;
     }
 }
