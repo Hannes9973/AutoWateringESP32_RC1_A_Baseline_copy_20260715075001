@@ -35,12 +35,7 @@ updateState();
 }
             
         
-        break;
-
-    case PotState::WATERING:
-    break;
-
-    
+        
 
     default:
         break;
@@ -79,7 +74,14 @@ void PotManager::updateState()
     switch(_status.state)
     {
         case PotState::WAIT_FOR_DRY:
+case PotState::WATERING:
 
+    if(_status.weight >= _status.targetWeight)
+    {
+        stopWatering();
+    }
+
+    break;
             if(_status.weight < _status.startWeight)
             {
                 startWatering();
