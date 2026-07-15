@@ -15,18 +15,21 @@ void PotManager::update(){
 
     _status.weight=_scale->getWeight(_pot);
 
-    if(!_status.autoMode){
-        _status.state=PotState::MANUAL;
-        return;
-    }
+    if(!_status.autoMode)
+{
+    stopWatering();
+
+    _status.state = PotState::MANUAL;
+
+    return;
+}
 updateState();
 
     switch(_status.state){
     case PotState::IDLE:
-    case PotState::WAIT_FOR_DRY:
-        if(_status.weight < _status.startWeight)
+    
 {
-    startWatering();
+   
 
     
 }
@@ -35,13 +38,7 @@ updateState();
         break;
 
     case PotState::WATERING:
-        if(_status.weight>=_status.targetWeight){
-           stopWatering();
-
-_status.state = PotState::TARGET_REACHED;
-
-        }
-        break;
+    break;
 
     
 
@@ -81,8 +78,23 @@ void PotManager::updateState()
 {
     switch(_status.state)
     {
-        
-        default:
+        case PotState::WAIT_FOR_DRY:
+
+            if(_status.weight < _status.startWeight)
+            {
+                startWatering();
+            }
+
+            break;
+
+        case PotState::TARGET_REACHED:
+
+    stopWatering();
+
+    _status.state = PotState::WAIT_FOR_DRY;
+
+    break;
+    default:
             break;
     }
 }
