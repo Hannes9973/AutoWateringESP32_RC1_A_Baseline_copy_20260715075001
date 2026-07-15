@@ -25,21 +25,8 @@ void PotManager::update(){
 }
 updateState();
 
-    switch(_status.state){
-    case PotState::IDLE:
     
-{
-   
-
     
-}
-            
-        
-        
-
-    default:
-        break;
-    }
 }
 
 void PotManager::setAutoMode(bool e){_status.autoMode=e;}
