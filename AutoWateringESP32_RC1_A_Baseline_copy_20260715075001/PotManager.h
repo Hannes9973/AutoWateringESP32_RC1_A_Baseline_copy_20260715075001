@@ -41,4 +41,8 @@ private:
     ScaleManager* _scale;
     PumpManager* _pump;
     PotStatus _status;
+
+    void updateState();
+    void startWatering();
+    void stopWatering();
 };

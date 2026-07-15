@@ -19,6 +19,7 @@ void PotManager::update(){
         _status.state=PotState::MANUAL;
         return;
     }
+updateState();
 
     switch(_status.state){
     case PotState::IDLE:
@@ -40,9 +41,7 @@ void PotManager::update(){
         }
         break;
 
-    case PotState::TARGET_REACHED:
-        _status.state=PotState::WAIT_FOR_DRY;
-        break;
+    
 
     default:
         break;
@@ -71,4 +70,28 @@ const char* PotManager::getStateName() const{
     case PotState::ERROR_TANK:return "ERROR_TANK";
     default:return "UNKNOWN";
     }
+}
+//-----------------------------------------------------
+// State Machine
+//-----------------------------------------------------
+
+void PotManager::updateState()
+{
+    switch(_status.state)
+    {
+        case PotState::TARGET_REACHED:
+            _status.state = PotState::WAIT_FOR_DRY;
+            break;
+
+        default:
+            break;
+    }
+}
+
+void PotManager::startWatering()
+{
+}
+
+void PotManager::stopWatering()
+{
 }
