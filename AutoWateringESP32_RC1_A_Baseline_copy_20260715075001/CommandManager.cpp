@@ -50,7 +50,8 @@ void CommandManager::printInfo() const
 
 void CommandManager::processCommand(ScaleManager& scale,
                                     PumpManager& pump,
-                                    StorageManager& storage)
+                                    StorageManager& storage,
+                                    PotManager pot[])
 {
     if(equals("help")) printHelp();
     else if(equals("version")) printVersion();
@@ -86,7 +87,8 @@ void CommandManager::processCommand(ScaleManager& scale,
 
 void CommandManager::update(ScaleManager& scale,
                             PumpManager& pump,
-                            StorageManager& storage)
+                            StorageManager& storage,
+                            PotManager pot[])
 {
     while(Serial.available())
     {
@@ -96,7 +98,11 @@ void CommandManager::update(ScaleManager& scale,
             if(_index>0)
             {
                 _buffer[_index]='\0';
-                processCommand(scale,pump,storage);
+                processCommand(scale,
+               pump,
+               storage,
+               pot);
+               
                 _index=0;
             }
         }

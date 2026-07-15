@@ -26,7 +26,8 @@ void PotManager::update(){
         if(_status.weight<_status.startWeight){
             _pump->on(_pot);
             _status.watering=true;
-            _status.wateringTime=millis();
+            _status.wateringTime = millis();
+            
             _status.state=PotState::WATERING;
         }
         break;
