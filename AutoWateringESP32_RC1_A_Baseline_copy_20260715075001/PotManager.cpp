@@ -44,7 +44,21 @@ float PotManager::getStartWeight() const{return _status.startWeight;}
 float PotManager::getTargetWeight() const{return _status.targetWeight;}
 float PotManager::getWeight() const{return _status.weight;}
 PotState PotManager::getState() const{return _status.state;}
-const PotStatus& PotManager::getStatus() const{return _status;}
+const PotStatus& PotManager::getStatus() const
+{
+    return _status;
+}
+
+uint32_t PotManager::getErrorCount() const
+{
+    return _status.errorCount;
+}
+
+void PotManager::resetErrorCount()
+{
+    _status.errorCount = 0;
+}
+
 
 const char* PotManager::getStateName() const{
     switch(_status.state){

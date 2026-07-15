@@ -30,8 +30,8 @@ public:
     PotState getState() const;
     const char* getStateName() const;
     const PotStatus& getStatus() const;
-  
-
+  uint32_t getErrorCount() const;
+void resetErrorCount();
     
 
     
