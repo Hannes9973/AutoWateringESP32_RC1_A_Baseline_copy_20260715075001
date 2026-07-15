@@ -30,6 +30,11 @@ public:
     PotState getState() const;
     const char* getStateName() const;
     const PotStatus& getStatus() const;
+  
+
+    
+
+    
 
 private:
     uint8_t _pot;
