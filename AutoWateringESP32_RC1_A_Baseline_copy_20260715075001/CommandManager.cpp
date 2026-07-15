@@ -10,7 +10,7 @@
 #include "PumpManager.h"
 #include "StorageManager.h"
 #include <cstring>
-
+#include "PotManager.h"
 CommandManager::CommandManager() : _index(0)
 {
     memset(_buffer,0,sizeof(_buffer));
@@ -64,8 +64,17 @@ void CommandManager::processCommand(ScaleManager& scale,
             Serial.print(i+1);
             Serial.print(": ");
             Serial.print(scale.getWeight(i),1);
-            Serial.print(" g Pump=");
-            Serial.println(pump.isRunning(i)?"EIN":"AUS");
+Serial.print(" g ");
+
+Serial.print("State=");
+Serial.print(pot[i].getStateName());
+Serial.print(" Waterings=");
+Serial.print(pot[i].getStatus().wateringCount);
+
+Serial.print(" Errors=");
+Serial.print(pot[i].getErrorCount());
+Serial.print(" Pump=");
+Serial.println(pump.isRunning(i) ? "EIN" : "AUS");
         }
     }
     else if(equals("tare 1")) scale.tare(0);
