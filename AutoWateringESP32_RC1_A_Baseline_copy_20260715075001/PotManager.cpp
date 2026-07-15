@@ -24,13 +24,14 @@ updateState();
     switch(_status.state){
     case PotState::IDLE:
     case PotState::WAIT_FOR_DRY:
-        if(_status.weight<_status.startWeight){
-            _pump->on(_pot);
-            _status.watering=true;
-            _status.wateringTime = millis();
+        if(_status.weight < _status.startWeight)
+{
+    startWatering();
+
+    _status.state = PotState::WATERING;
+}
             
-            _status.state=PotState::WATERING;
-        }
+        
         break;
 
     case PotState::WATERING:
@@ -90,7 +91,16 @@ void PotManager::updateState()
 
 void PotManager::startWatering()
 {
+    if(!_status.watering)
+    {
+        _pump->on(_pot);
+
+        _status.watering = true;
+
+        _status.wateringTime = millis();
+    }
 }
+
 
 void PotManager::stopWatering()
 {
