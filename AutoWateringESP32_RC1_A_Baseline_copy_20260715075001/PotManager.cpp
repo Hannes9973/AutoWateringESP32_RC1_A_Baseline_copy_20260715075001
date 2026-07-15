@@ -14,7 +14,14 @@ void PotManager::update(){
     if(!_scale||!_pump) return;
 
     _status.weight=_scale->getWeight(_pot);
+if(_status.weight < 0.0f)
+{
+    stopWatering();
 
+    _status.state = PotState::ERROR_SENSOR;
+
+    return;
+}
     if(!_status.autoMode)
 {
     stopWatering();
@@ -89,7 +96,11 @@ case PotState::TARGET_REACHED:
     _status.state = PotState::WAIT_FOR_DRY;
 
     break;
+case PotState::ERROR_TIMEOUT:
 
+    stopWatering();
+
+    break;
 default:
     break;
 }
