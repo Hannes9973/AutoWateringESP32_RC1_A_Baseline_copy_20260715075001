@@ -16,6 +16,7 @@
 #include "PotManager.h"
 #include <WiFi.h>
 #include <WebServer.h>
+#include "WebManager.h"
 
 ScaleManager Scale;
 StorageManager Storage;
@@ -348,6 +349,8 @@ server.on("/save", []()
 server.begin();
 
 Serial.println("Webserver gestartet.");
+
+Serial.println("WebManager gestartet.");
 Serial.println("System bereit.");
 Serial.println("Befehl 'help' fuer Hilfe.");;
 }
