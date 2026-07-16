@@ -15,16 +15,53 @@
 #include "CommandManager.h"
 #include "PotManager.h"
 #include <WiFi.h>
+#include <WebServer.h>
 
 ScaleManager Scale;
 StorageManager Storage;
 PumpManager Pump;
 CommandManager Command;
 PotManager Pot[NUMBER_OF_POTS];
+WebServer server(80);
 
 unsigned long lastPrint = 0;
+String createWebPage()
+{
+    String html;
+
+    html += "<!DOCTYPE html>";
+    html += "<html><head>";
+    html += "<meta charset='UTF-8'>";
+    html += "<meta http-equiv='refresh' content='2'>";
+    html += "<title>AutoWatering RC1</title>";
+    html += "</head><body>";
+
+    html += "<h1>AutoWatering RC1</h1>";
+
+    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+    {
+        html += "<h2>Topf ";
+        html += String(i + 1);
+        html += "</h2>";
+
+        html += "Gewicht: ";
+        html += String(Pot[i].getWeight(), 1);
+        html += " g<br>";
+
+        html += "Status: ";
+        html += Pot[i].getStateName();
+        html += "<br><br>";
+    }
+
+    html += "</body></html>";
+
+    return html;
+}
+
+
 
 void printHeader()
+
 {
     Serial.println();
     Serial.println("========================================");
@@ -103,13 +140,20 @@ void setup()
     // Gespeicherte Werte laden (überschreibt ggf. die Standardwerte)
     Storage.loadPotConfig(i, Pot[i]);
 }
+server.on("/", []()
+{
+    server.send(200, "text/html", createWebPage());
+});
 
+server.begin();
+
+Serial.println("Webserver gestartet.");
 Serial.println("System bereit.");
 Serial.println("Befehl 'help' fuer Hilfe.");;
 }
 
 void loop()
-{
+{server.handleClient();
     Scale.update();
     Pump.update();
 
