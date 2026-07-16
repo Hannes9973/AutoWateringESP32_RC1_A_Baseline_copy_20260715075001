@@ -24,7 +24,7 @@ public:
     void setTargetWeight(float g);
 
     float getStartWeight() const;
-    float getTargetWeight() const;
+        float getTargetWeight() const;
     float getWeight() const;
 
     PotState getState() const;

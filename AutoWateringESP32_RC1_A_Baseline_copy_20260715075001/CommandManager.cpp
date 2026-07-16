@@ -212,6 +212,7 @@ void CommandManager::processCommand(ScaleManager& scale,
                                     StorageManager& storage,
                                     PotManager pot[])
 {
+    
     if(equals("help"))
     {
         printHelp();
@@ -260,16 +261,45 @@ void CommandManager::processCommand(ScaleManager& scale,
         }
     }
     else if(equals("verbose on"))
+{
+    _verbose = true;
+    Serial.println("Verbose ON");
+}
+else if(equals("verbose off"))
+{
+    _verbose = false;
+    Serial.println("Verbose OFF");
+}
+else if(startsWith("setstart "))
+{
+    int potIndex;
+    float value;
+
+    if(sscanf(_buffer, "setstart %d %f", &potIndex, &value) == 2)
     {
-        _verbose=true;
-        Serial.println("Verbose ON");
+        potIndex--;
+
+        if(potIndex >= 0 && potIndex < NUMBER_OF_POTS)
+        {
+            pot[potIndex].setStartWeight(value);
+
+            Serial.print("Topf ");
+            Serial.print(potIndex + 1);
+            Serial.print(" Startgewicht = ");
+            Serial.print(value, 1);
+            Serial.println(" g");
+        }
+        else
+        {
+            Serial.println("Ungueltige Topfnummer");
+        }
     }
-    else if(equals("verbose off"))
+    else
     {
-        _verbose=false;
-        Serial.println("Verbose OFF");
+        Serial.println("Syntax: setstart <Topf> <Gramm>");
     }
-    else if(equals("tare 1"))
+}
+else if(equals("tare 1"))
     {
         scale.tare(0);
     }

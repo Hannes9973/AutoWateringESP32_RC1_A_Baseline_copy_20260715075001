@@ -46,6 +46,7 @@ bool PotManager::getAutoMode() const{return _status.autoMode;}
 void PotManager::setStartWeight(float g){_status.startWeight=g;}
 void PotManager::setTargetWeight(float g){_status.targetWeight=g;}
 float PotManager::getStartWeight() const{return _status.startWeight;}
+
 float PotManager::getTargetWeight() const{return _status.targetWeight;}
 float PotManager::getWeight() const{return _status.weight;}
 PotState PotManager::getState() const{return _status.state;}
