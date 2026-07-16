@@ -93,7 +93,8 @@ void CommandManager::printHelp() const
 
     Serial.println("save");
     Serial.println("load");
-
+Serial.println("saveconfig");
+Serial.println("loadconfig");
     Serial.println();
 
     Serial.println("pump 1 on");
@@ -340,11 +341,30 @@ else if(equals("tare 1"))
         scale.tare(2);
     }
     else if(equals("save"))
+{
+    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+        storage.saveScale(i, scale);
+}
+else if(equals("saveconfig"))
+{
+    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
     {
-        for(uint8_t i=0;i<NUMBER_OF_POTS;i++)
-            storage.saveScale(i,scale);
+        storage.savePotConfig(i, pot[i]);
     }
-    else if(equals("load"))
+
+    Serial.println("Topf-Konfiguration gespeichert.");
+}
+else if(equals("loadconfig"))
+{
+    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+    {
+        storage.loadPotConfig(i, pot[i]);
+    }
+
+    Serial.println("Topf-Konfiguration geladen.");
+}
+else if(equals("load"))
+
     {
         for(uint8_t i=0;i<NUMBER_OF_POTS;i++)
             storage.loadScale(i,scale);

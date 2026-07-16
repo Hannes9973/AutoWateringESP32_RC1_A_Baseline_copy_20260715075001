@@ -70,17 +70,22 @@ void setup()
     Storage.begin();
     Command.begin();
 
-    for(uint8_t i=0;i<NUMBER_OF_POTS;i++)
-    {
-        Storage.loadScale(i, Scale);
+    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+{
+    Storage.loadScale(i, Scale);
 
-        Pot[i].begin(i, &Scale, &Pump);
-        Pot[i].setStartWeight(DEFAULT_START_WEIGHT);
-        Pot[i].setTargetWeight(DEFAULT_TARGET_WEIGHT);
-    }
+    Pot[i].begin(i, &Scale, &Pump);
 
-    Serial.println("System bereit.");
-    Serial.println("Befehl 'help' fuer Hilfe.");
+    // Nur Standardwerte setzen, falls noch nichts gespeichert wurde
+    Pot[i].setStartWeight(DEFAULT_START_WEIGHT);
+    Pot[i].setTargetWeight(DEFAULT_TARGET_WEIGHT);
+
+    // Gespeicherte Werte laden (überschreibt ggf. die Standardwerte)
+    Storage.loadPotConfig(i, Pot[i]);
+}
+
+Serial.println("System bereit.");
+Serial.println("Befehl 'help' fuer Hilfe.");;
 }
 
 void loop()

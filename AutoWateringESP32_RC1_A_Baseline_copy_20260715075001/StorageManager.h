@@ -4,7 +4,7 @@
 #include <Preferences.h>
 
 class ScaleManager;
-
+class PotManager;
 class StorageManager
 {
 public:
@@ -17,7 +17,8 @@ public:
 
     void begin();
     void end();
-
+void savePotConfig(uint8_t potIndex, const PotManager& pot);
+void loadPotConfig(uint8_t potIndex, PotManager& pot);
     //--------------------------------------------------
     // Waagendaten
     //--------------------------------------------------

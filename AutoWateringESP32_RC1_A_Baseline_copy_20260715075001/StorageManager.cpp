@@ -7,7 +7,7 @@
 
 #include "StorageManager.h"
 #include "ScaleManager.h"
-
+#include "PotManager.h"
 //---------------------------------------------------------
 // Konstruktor
 //---------------------------------------------------------
@@ -79,6 +79,7 @@ bool StorageManager::saveScale(uint8_t pot,
 
 bool StorageManager::loadScale(uint8_t pot,
                                ScaleManager& scale)
+                               
 {
     if (pot >= NUMBER_OF_POTS)
         return false;
@@ -102,4 +103,30 @@ bool StorageManager::loadScale(uint8_t pot,
         calibration);
 
     return true;
+    
+}
+void StorageManager::savePotConfig(uint8_t potIndex, const PotManager& pot)
+{
+    String key = "pot" + String(potIndex);
+
+    _prefs.putFloat((key + "_start").c_str(), pot.getStartWeight());
+    _prefs.putFloat((key + "_target").c_str(), pot.getTargetWeight());
+    _prefs.putBool((key + "_auto").c_str(), pot.getAutoMode());
+}
+
+void StorageManager::loadPotConfig(uint8_t potIndex, PotManager& pot)
+{
+    String key = "pot" + String(potIndex);
+
+    pot.setStartWeight(
+        _prefs.getFloat((key + "_start").c_str(),
+                        pot.getStartWeight()));
+
+    pot.setTargetWeight(
+        _prefs.getFloat((key + "_target").c_str(),
+                        pot.getTargetWeight()));
+
+    pot.setAutoMode(
+        _prefs.getBool((key + "_auto").c_str(),
+                       pot.getAutoMode()));
 }
