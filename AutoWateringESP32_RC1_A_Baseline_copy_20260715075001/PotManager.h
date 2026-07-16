@@ -32,8 +32,8 @@ public:
     const PotStatus& getStatus() const;
   uint32_t getErrorCount() const;
 void resetErrorCount();
-    
-
+    void setState(PotState state);
+void resetState();
     
 
 private:

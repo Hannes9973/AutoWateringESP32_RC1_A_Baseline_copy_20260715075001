@@ -55,6 +55,8 @@ const PotStatus& PotManager::getStatus() const
 }
 
 uint32_t PotManager::getErrorCount() const
+
+
 {
     return _status.errorCount;
 }
@@ -64,8 +66,23 @@ void PotManager::resetErrorCount()
     _status.errorCount = 0;
 }
 
+void PotManager::setState(PotState state)
+{
+    _status.state = state;
+}
 
-const char* PotManager::getStateName() const{
+void PotManager::resetState()
+{
+    _status.state = PotState::WAIT_FOR_DRY;
+    _status.errorCount = 0;
+    _status.wateringTime = millis();
+    _status.wateringStartWeight = _status.weight;
+}
+
+
+const char* PotManager::getStateName() const
+{
+    
     switch(_status.state){
     case PotState::IDLE:return "IDLE";
     case PotState::WAIT_FOR_DRY:return "WAIT_FOR_DRY";
@@ -142,7 +159,27 @@ case PotState::TARGET_REACHED:
 
     break;
     case PotState::ERROR_SENSOR:
+
+    stopWatering();
+
+    if(_status.weight >= 0.0f)
+    {
+        _status.state = PotState::WAIT_FOR_DRY;
+    }
+
+    break;
+
 case PotState::ERROR_TIMEOUT:
+
+    stopWatering();
+
+    if(millis() - _status.wateringTime > 30000)
+    {
+        _status.state = PotState::WAIT_FOR_DRY;
+    }
+
+    break;
+
 case PotState::ERROR_TANK:
 
     stopWatering();

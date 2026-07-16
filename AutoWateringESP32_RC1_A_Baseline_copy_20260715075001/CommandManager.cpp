@@ -124,50 +124,33 @@ Serial.println(pot[potIndex].getErrorCount());
     }
 }
 
-else if(startsWith("pot "))
+else if(startsWith("reset "))
 {
-    int potIndex = atoi(_buffer + 4) - 1;
+    int potIndex = atoi(_buffer + 6) - 1;
 
     if(potIndex < 0 || potIndex >= NUMBER_OF_POTS)
     {
         Serial.println("Ungueltige Topfnummer");
     }
     else
-{
-    Serial.print("Topf ");
-    Serial.println(potIndex + 1);
+    {
+        pot[potIndex].resetState();
 
-    Serial.print("State: ");
-    Serial.println(pot[potIndex].getStateName());
-
-    Serial.print("Weight: ");
-Serial.print(pot[potIndex].getWeight(), 1);
-Serial.println(" g");
-Serial.print("Start: ");
-Serial.print(pot[potIndex].getStartWeight(), 1);
-Serial.println(" g");
-Serial.print("Auto: ");
-Serial.println(pot[potIndex].getAutoMode() ? "ON" : "OFF");
-
-Serial.print("Pump: ");
-Serial.println(pump.isRunning(potIndex) ? "ON" : "OFF");
-
-Serial.print("Waterings: ");
-Serial.println(pot[potIndex].getStatus().wateringCount);
-
-Serial.print("Errors: ");
-Serial.println(pot[potIndex].getErrorCount());
+        Serial.print("Topf ");
+        Serial.print(potIndex + 1);
+        Serial.println(" wurde zurueckgesetzt.");
+    }
 
 
 
         
     
-}
-}
+
+
 
     
 
-
+}
 else if(equals("verbose on"))
 {
     _verbose = true;
