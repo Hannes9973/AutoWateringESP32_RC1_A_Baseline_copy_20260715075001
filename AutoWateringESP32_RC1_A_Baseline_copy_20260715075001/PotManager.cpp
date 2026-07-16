@@ -17,7 +17,12 @@ void PotManager::update(){
 if(_status.weight < 0.0f)
 {
     stopWatering();
-_status.errorCount++;
+
+    if(_status.state != PotState::ERROR_SENSOR)
+    {
+        _status.errorCount++;
+    }
+
     _status.state = PotState::ERROR_SENSOR;
 
     return;
@@ -103,8 +108,13 @@ else if(millis() - _status.wateringTime > TANK_CHECK_TIME &&
         (_status.weight - _status.wateringStartWeight) < MIN_WEIGHT_GAIN)
 {
     stopWatering();
-_status.errorCount++;
-    _status.state = PotState::ERROR_TANK;
+
+if(_status.state != PotState::ERROR_TANK)
+{
+    _status.errorCount++;
+}
+
+_status.state = PotState::ERROR_TANK;
 }
 else if(millis() - _status.wateringTime > MAX_PUMP_RUNTIME)
 {
