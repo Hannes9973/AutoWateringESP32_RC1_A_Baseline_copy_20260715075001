@@ -22,6 +22,10 @@ bool CommandManager::equals(const char* text) const
 {
     return strcmp(_buffer,text)==0;
 }
+bool CommandManager::isVerbose() const
+{
+    return _verbose;
+}
 bool CommandManager::startsWith(const char* text) const
 {
     return strncmp(_buffer, text, strlen(text)) == 0;
@@ -154,14 +158,29 @@ Serial.println(pot[potIndex].getStatus().wateringCount);
 Serial.print("Errors: ");
 Serial.println(pot[potIndex].getErrorCount());
 
-}
+
 
         
     
 }
+}
+
+    
+
+
+else if(equals("verbose on"))
+{
+    _verbose = true;
+    Serial.println("Verbose ON");
+}
+else if(equals("verbose off"))
+{
+    _verbose = false;
+    Serial.println("Verbose OFF");
+}
 
 else if(equals("tare 1")) scale.tare(0);
-    else if(equals("tare 1")) scale.tare(0);
+    
     else if(equals("tare 2")) scale.tare(1);
     else if(equals("tare 3")) scale.tare(2);
     else if(equals("save"))

@@ -32,7 +32,10 @@ void printHeader()
 }
 
 void printStatus()
+{if(!Command.isVerbose())
 {
+    return;
+}
     for(uint8_t i=0;i<NUMBER_OF_POTS;i++)
     {
         Serial.print("Topf ");
