@@ -298,6 +298,34 @@ else if(startsWith("setstart "))
     {
         Serial.println("Syntax: setstart <Topf> <Gramm>");
     }
+}else if(startsWith("settarget "))
+{
+    int potIndex;
+    float value;
+
+    if(sscanf(_buffer, "settarget %d %f", &potIndex, &value) == 2)
+    {
+        potIndex--;
+
+        if(potIndex >= 0 && potIndex < NUMBER_OF_POTS)
+        {
+            pot[potIndex].setTargetWeight(value);
+
+            Serial.print("Topf ");
+            Serial.print(potIndex + 1);
+            Serial.print(" Zielgewicht = ");
+            Serial.print(value, 1);
+            Serial.println(" g");
+        }
+        else
+        {
+            Serial.println("Ungueltige Topfnummer");
+        }
+    }
+    else
+    {
+        Serial.println("Syntax: settarget <Topf> <Gramm>");
+    }
 }
 else if(equals("tare 1"))
     {
