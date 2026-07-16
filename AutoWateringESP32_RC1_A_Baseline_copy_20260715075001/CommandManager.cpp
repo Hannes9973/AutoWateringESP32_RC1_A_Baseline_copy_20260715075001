@@ -36,6 +36,9 @@ void CommandManager::printHelp() const
     Serial.println("status");
     Serial.println("version");
     Serial.println("info");
+    Serial.println("pot 1|2|3");
+Serial.println("reset 1|2|3");
+Serial.println("verbose on/off");
     Serial.println("tare 1|2|3");
     Serial.println("save");
     Serial.println("load");
