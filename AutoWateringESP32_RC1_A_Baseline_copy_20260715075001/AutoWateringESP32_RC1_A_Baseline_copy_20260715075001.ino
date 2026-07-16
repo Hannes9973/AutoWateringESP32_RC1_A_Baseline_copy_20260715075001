@@ -14,6 +14,7 @@
 #include "PumpManager.h"
 #include "CommandManager.h"
 #include "PotManager.h"
+#include <WiFi.h>
 
 ScaleManager Scale;
 StorageManager Storage;
@@ -61,6 +62,25 @@ void printStatus()
 void setup()
 {
     Serial.begin(SERIAL_BAUD);
+    if(WIFI_ENABLED)
+{
+    Serial.println();
+    Serial.println("Verbinde mit WLAN...");
+
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+    while(WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println();
+    Serial.println("WLAN verbunden");
+    Serial.print("IP-Adresse: ");
+    Serial.println(WiFi.localIP());
+}
     delay(1000);
 
     printHeader();
