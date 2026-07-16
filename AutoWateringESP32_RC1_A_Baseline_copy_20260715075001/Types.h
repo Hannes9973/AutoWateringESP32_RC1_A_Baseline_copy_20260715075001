@@ -70,7 +70,7 @@ enum class PotState : uint8_t
 
     ERROR_TIMEOUT,
 
-    ERROR_TANK
+    
 };
 
 //=========================================================

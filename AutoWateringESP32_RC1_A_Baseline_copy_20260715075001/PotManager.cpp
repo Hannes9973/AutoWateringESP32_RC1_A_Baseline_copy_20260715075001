@@ -92,7 +92,7 @@ const char* PotManager::getStateName() const
     case PotState::MANUAL:return "MANUAL";
     case PotState::ERROR_SENSOR:return "ERROR_SENSOR";
     case PotState::ERROR_TIMEOUT:return "ERROR_TIMEOUT";
-    case PotState::ERROR_TANK:return "ERROR_TANK";
+    
     default:return "UNKNOWN";
     }
 }
@@ -125,18 +125,9 @@ case PotState::WATERING:
         stopWatering();
         
     }
-    else if(millis() - _status.wateringTime > TANK_CHECK_TIME &&
-            (_status.weight - _status.wateringStartWeight) < MIN_WEIGHT_GAIN)
-    {
-        stopWatering();
-
-        if(_status.state != PotState::ERROR_TANK)
-        {
-            _status.errorCount++;
-        }
-
-        _status.state = PotState::ERROR_TANK;
-    }
+    
+       
+    
     else if(millis() - _status.wateringTime > MAX_PUMP_RUNTIME)
     {
         stopWatering();
@@ -184,11 +175,7 @@ case PotState::ERROR_TIMEOUT:
 
     break;
 
-case PotState::ERROR_TANK:
 
-    stopWatering();
-
-    break;
 default:
     break;
 }
