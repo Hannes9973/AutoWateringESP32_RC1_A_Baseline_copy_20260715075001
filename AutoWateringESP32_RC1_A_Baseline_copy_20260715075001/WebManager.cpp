@@ -1,4 +1,5 @@
 #include "WebManager.h"
+#include <LittleFS.h>
 
 WebManager::WebManager()
     : _server(80),
@@ -15,7 +16,14 @@ void WebManager::begin(PotManager pot[],
     _pot = pot;
     _pump = pump;
     _storage = storage;
-
+if(!LittleFS.begin(true))
+{
+    Serial.println("LittleFS konnte nicht gestartet werden!");
+}
+else
+{
+    Serial.println("LittleFS bereit.");
+}
     setupRoutes();
     _server.begin();
 }
@@ -33,10 +41,19 @@ void WebManager::setupRoutes()
     // Hauptseite
     //-----------------------------------------------------
 
-    _server.on("/", [this]()
+   _server.on("/", [this]()
+{
+    File file = LittleFS.open("/index.html", "r");
+
+    if(!file)
     {
-        _server.send(200, "text/html", createWebPage());
-    });
+        _server.send(404, "text/plain", "index.html nicht gefunden");
+        return;
+    }
+
+    _server.streamFile(file, "text/html");
+    file.close();
+});
 
     //-----------------------------------------------------
     // Reset
