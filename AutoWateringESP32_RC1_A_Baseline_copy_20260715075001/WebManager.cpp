@@ -224,6 +224,11 @@ html += "for(let i=0;i<d.pots.length;i++){";
 html += "document.getElementById('weight'+i).innerHTML=";
 html += "d.pots[i].weight.toFixed(1);";
 
+html += "document.getElementById('state'+i).innerHTML=";
+html += "d.pots[i].state;";
+
+html += "}";
+
 html += "}";
 
 html += "}";
@@ -268,32 +273,35 @@ html += "</span> g</div>";
         //-------------------------------------------------
 
         html += "<div class='value'><b>Status:</b> ";
+html += "<span id='state";
+html += String(i);
+html += "' class='";
 
-        switch(_pot[i].getState())
-        {
-            case PotState::IDLE:
-                html += "<span class='idle'>IDLE</span>";
-                break;
+switch(_pot[i].getState())
+{
+    case PotState::IDLE:
+        html += "idle";
+        break;
 
-            case PotState::WAIT_FOR_DRY:
-                html += "<span class='wait'>WAIT_FOR_DRY</span>";
-                break;
+    case PotState::WAIT_FOR_DRY:
+        html += "wait";
+        break;
 
-            case PotState::WATERING:
-                html += "<span class='watering'>WATERING</span>";
-                break;
+    case PotState::WATERING:
+        html += "watering";
+        break;
 
-            case PotState::ERROR_SENSOR:
-            case PotState::ERROR_TIMEOUT:
-                html += "<span class='error'>";
-                html += _pot[i].getStateName();
-                html += "</span>";
-                break;
+    case PotState::ERROR_SENSOR:
+    case PotState::ERROR_TIMEOUT:
+        html += "error";
+        break;
+}
 
-            default:
-                html += _pot[i].getStateName();
-                break;
-        }
+html += "'>";
+
+html += _pot[i].getStateName();
+
+html += "</span>";
 
         html += "</div>";
 
@@ -378,8 +386,36 @@ String WebManager::createStatusJson()
         json += "\"start\":" + String(_pot[i].getStartWeight(), 1) + ",";
         json += "\"target\":" + String(_pot[i].getTargetWeight(), 1) + ",";
         json += "\"state\":\"";
-        json += _pot[i].getStateName();
-        json += "\"}";
+json += _pot[i].getStateName();
+json += "\",";
+
+json += "\"stateClass\":\"";
+
+switch(_pot[i].getState())
+{
+    case PotState::IDLE:
+        json += "idle";
+        break;
+
+    case PotState::WAIT_FOR_DRY:
+        json += "wait";
+        break;
+
+    case PotState::WATERING:
+        json += "watering";
+        break;
+
+    case PotState::ERROR_SENSOR:
+    case PotState::ERROR_TIMEOUT:
+        json += "error";
+        break;
+
+    default:
+        json += "";
+        break;
+}
+
+json += "\"}";
     }
 
     json += "]";
