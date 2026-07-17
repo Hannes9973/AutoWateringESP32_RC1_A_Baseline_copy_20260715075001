@@ -43,16 +43,7 @@ void WebManager::setupRoutes()
 
    _server.on("/", [this]()
 {
-    File file = LittleFS.open("/index.html", "r");
-
-    if(!file)
-    {
-        _server.send(404, "text/plain", "index.html nicht gefunden");
-        return;
-    }
-
-    _server.streamFile(file, "text/html");
-    file.close();
+    _server.send(200, "text/html", createWebPage());
 });
 
     //-----------------------------------------------------
@@ -174,21 +165,34 @@ _server.on("/api/status", [this]()
 //=========================================================
 
 String WebManager::createWebPage()
-
 {
     String html;
 
-    html.reserve(8000);
+    html.reserve(10000);
 
     html += "<!DOCTYPE html>";
     html += "<html>";
+
+    //-------------------------------------------------
+    // HEAD
+    //-------------------------------------------------
+
     html += "<head>";
 
     html += "<meta charset='UTF-8'>";
     html += "<meta name='viewport' content='width=device-width, initial-scale=1'>";
 
+    html += "<title>AutoWatering RC2</title>";
 
-    html += "<title>AutoWatering RC1</title>";
+    //-------------------------------------------------
+    // Chart.js
+    //-------------------------------------------------
+
+    html += "<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>";
+
+    //-------------------------------------------------
+    // CSS
+    //-------------------------------------------------
 
     html += "<style>";
 
@@ -200,6 +204,10 @@ String WebManager::createWebPage()
 
     html += "h1{";
     html += "text-align:center;";
+    html += "}";
+
+    html += "h2{";
+    html += "margin-top:30px;";
     html += "}";
 
     html += ".card{";
@@ -229,44 +237,18 @@ String WebManager::createWebPage()
     html += "</style>";
 
     html += "</head>";
-    html += "<script>";
 
-html += "async function updateStatus(){";
+    //-------------------------------------------------
+    // BODY
+    //-------------------------------------------------
 
-html += "const r=await fetch('/api/status');";
-html += "const d=await r.json();";
-
-html += "for(let i=0;i<d.pots.length;i++){";
-
-html += "document.getElementById('weight'+i).innerHTML=";
-html += "d.pots[i].weight.toFixed(1);";
-
-html += "document.getElementById('state'+i).innerHTML=";
-html += "d.pots[i].state;";
-
-html += "}";
-
-html += "}";
-
-html += "}";
-
-html += "setInterval(updateStatus,2000);";
-html += "updateStatus();";
-
-html += "</script>";
     html += "<body>";
 
-    html += "<h1>🌱 AutoWatering RC1</h1>";
+    html += "<h1>🌱 AutoWatering RC2</h1>";
 
-    //=========================================================
-
-//=========================================================
-
-
-        //-----------------------------------------------------
+    //-------------------------------------------------
     // Karten
-    //-----------------------------------------------------
-
+    //-------------------------------------------------
     for(uint8_t i=0;i<NUMBER_OF_POTS;i++)
     {
         html += "<div class='card'>";
@@ -382,9 +364,85 @@ html += "</span>";
     }
 
     //-----------------------------------------------------
+html += "<h2>Gewichtsverlauf</h2>";
+   html += "<canvas id='weightChart' width='800' height='300' style='border:1px solid #888;'></canvas>";
 
-    html += "</body>";
-    html += "</html>";
+html += "<script>";
+
+html += "const history=[];";
+html += "for(let i=0;i<" + String(NUMBER_OF_POTS) + ";i++)history.push([]);";
+
+html += "const ctx=document.getElementById('weightChart').getContext('2d');";
+
+html += "const chart=new Chart(ctx,{";
+html += "type:'line',";
+html += "data:{labels:[],datasets:[";
+
+for(int i=0;i<NUMBER_OF_POTS;i++)
+{
+    if(i>0) html += ",";
+
+    html += "{";
+    html += "label:'Topf ";
+    html += String(i+1);
+    html += "',";
+    html += "data:[],";
+    html += "fill:false,";
+
+    switch(i)
+    {
+        case 0: html += "borderColor:'green'"; break;
+        case 1: html += "borderColor:'blue'"; break;
+        case 2: html += "borderColor:'red'"; break;
+        case 3: html += "borderColor:'orange'"; break;
+        default: html += "borderColor:'gray'"; break;
+    }
+
+    html += "}";
+}
+
+html += "]},";
+html += "options:{";
+html += "responsive:true,";
+html += "animation:false,";
+html += "interaction:{intersect:false,mode:'nearest'},";
+html += "scales:{";
+html += "x:{title:{display:true,text:'Messpunkt'}},";
+html += "y:{title:{display:true,text:'Gewicht (g)'}}";
+html += "}";
+html += "}";
+html += "});";
+
+html += "async function updateStatus(){";
+
+html += "const r=await fetch('/api/status');";
+html += "const d=await r.json();";
+
+html += "for(let i=0;i<d.pots.length;i++){";
+
+html += "document.getElementById('weight'+i).innerHTML=d.pots[i].weight.toFixed(1);";
+html += "document.getElementById('state'+i).innerHTML=d.pots[i].state;";
+html += "document.getElementById('state'+i).className=d.pots[i].stateClass;";
+
+html += "history[i].push(d.pots[i].weight);";
+html += "if(history[i].length>100)history[i].shift();";
+
+html += "chart.data.datasets[i].data=history[i];";
+
+html += "}";
+
+html += "chart.data.labels=history[0].map((_,n)=>n);";
+html += "chart.update('none');";
+
+html += "}";
+
+html += "updateStatus();";
+html += "setInterval(updateStatus,2000);";
+
+html += "</script>";
+
+html += "</body>";
+html += "</html>";
 
     return html;
 }
