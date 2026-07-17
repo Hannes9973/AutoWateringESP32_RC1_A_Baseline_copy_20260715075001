@@ -169,7 +169,7 @@ String WebManager::createWebPage()
 
     html += "<meta charset='UTF-8'>";
     html += "<meta name='viewport' content='width=device-width, initial-scale=1'>";
-    html += "<meta http-equiv='refresh' content='2'>";
+
 
     html += "<title>AutoWatering RC1</title>";
 
@@ -212,6 +212,26 @@ String WebManager::createWebPage()
     html += "</style>";
 
     html += "</head>";
+    html += "<script>";
+
+html += "async function updateStatus(){";
+
+html += "const r=await fetch('/api/status');";
+html += "const d=await r.json();";
+
+html += "for(let i=0;i<d.pots.length;i++){";
+
+html += "document.getElementById('weight'+i).innerHTML=";
+html += "d.pots[i].weight.toFixed(1);";
+
+html += "}";
+
+html += "}";
+
+html += "setInterval(updateStatus,2000);";
+html += "updateStatus();";
+
+html += "</script>";
     html += "<body>";
 
     html += "<h1>🌱 AutoWatering RC1</h1>";
@@ -237,9 +257,11 @@ String WebManager::createWebPage()
         // Gewicht
         //-------------------------------------------------
 
-        html += "<div class='value'><b>Gewicht:</b> ";
-        html += String(_pot[i].getWeight(),1);
-        html += " g</div>";
+        html += "<div class='value'><b>Gewicht:</b> <span id='weight";
+html += String(i);
+html += "'>";
+html += String(_pot[i].getWeight(),1);
+html += "</span> g</div>";
 
         //-------------------------------------------------
         // Status
