@@ -62,7 +62,16 @@ void WebManager::setupRoutes()
             "</script>"
             "</body></html>");
     });
+//-----------------------------------------------------
+// JSON Status
+//-----------------------------------------------------
 
+_server.on("/api/status", [this]()
+{
+    _server.send(200,
+                 "application/json",
+                 createStatusJson());
+});
     //-----------------------------------------------------
     // Pumpe EIN
     //-----------------------------------------------------
@@ -148,6 +157,7 @@ void WebManager::setupRoutes()
 //=========================================================
 
 String WebManager::createWebPage()
+
 {
     String html;
 
@@ -205,6 +215,12 @@ String WebManager::createWebPage()
     html += "<body>";
 
     html += "<h1>🌱 AutoWatering RC1</h1>";
+
+    //=========================================================
+
+//=========================================================
+
+
         //-----------------------------------------------------
     // Karten
     //-----------------------------------------------------
@@ -324,4 +340,28 @@ String WebManager::createWebPage()
     html += "</html>";
 
     return html;
+}
+String WebManager::createStatusJson()
+{
+    String json = "{";
+    json += "\"pots\":[";
+
+    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+    {
+        if(i > 0)
+            json += ",";
+
+        json += "{";
+        json += "\"weight\":" + String(_pot[i].getWeight(), 1) + ",";
+        json += "\"start\":" + String(_pot[i].getStartWeight(), 1) + ",";
+        json += "\"target\":" + String(_pot[i].getTargetWeight(), 1) + ",";
+        json += "\"state\":\"";
+        json += _pot[i].getStateName();
+        json += "\"}";
+    }
+
+    json += "]";
+    json += "}";
+
+    return json;
 }

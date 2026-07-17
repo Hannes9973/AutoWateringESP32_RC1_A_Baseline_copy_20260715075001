@@ -28,6 +28,6 @@ private:
 
     void setupRoutes();
     String createWebPage();
+    String createStatusJson();
 };
-
 #endif

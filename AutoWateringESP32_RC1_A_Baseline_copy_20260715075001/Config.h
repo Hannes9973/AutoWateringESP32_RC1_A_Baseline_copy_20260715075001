@@ -28,9 +28,9 @@ constexpr uint8_t NUMBER_OF_POTS = 3;
 
 constexpr bool WIFI_ENABLED = true;
 
-constexpr char WIFI_SSID[] = "FRITZ!Box 7491";
+constexpr char WIFI_SSID[] = "Galaxy S1091db";
 
-constexpr char WIFI_PASSWORD[] = "20946658577422564934";
+constexpr char WIFI_PASSWORD[] = "ywdb0133";
 
 //=========================================================
 // Logging
