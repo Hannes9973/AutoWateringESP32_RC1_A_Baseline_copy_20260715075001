@@ -40,6 +40,7 @@ void printHeader()
     Serial.println("========================================");
 }
 
+
 void printStatus()
 {if(!Command.isVerbose())
 {
