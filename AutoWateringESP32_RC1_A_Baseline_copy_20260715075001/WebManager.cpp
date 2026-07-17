@@ -371,7 +371,9 @@ html += "<script>";
 
 html += "const history=[];";
 html += "for(let i=0;i<" + String(NUMBER_OF_POTS) + ";i++)history.push([]);";
-
+html += "const lastWeight=[];";
+html += "for(let i=0;i<"+String(NUMBER_OF_POTS)+";i++)lastWeight.push(null);";
+html += "const labels=[];";
 html += "const ctx=document.getElementById('weightChart').getContext('2d');";
 
 html += "const chart=new Chart(ctx,{";
@@ -405,9 +407,27 @@ html += "]},";
 html += "options:{";
 html += "responsive:true,";
 html += "animation:false,";
+html += "plugins:{legend:{display:true}},";
 html += "interaction:{intersect:false,mode:'nearest'},";
 html += "scales:{";
-html += "x:{title:{display:true,text:'Messpunkt'}},";
+html += "x:{";
+html += "ticks:{";
+html += "autoSkip:false,";
+html += "maxRotation:0,";
+html += "callback:function(value){";
+html += "const txt=this.getLabelForValue(value);";
+html += "if(!txt) return '';";
+html += "const m=parseInt(txt.split(':')[1]);";
+html += "if(m===0||m===15||m===30||m===45)";
+html += "return txt;";
+html += "return '';";
+html += "}";
+html += "},";
+html += "title:{display:true,text:'Uhrzeit'}";
+html += "},";
+html += "},";
+html += "title:{display:true,text:'Uhrzeit'}";
+html += "},";
 html += "y:{title:{display:true,text:'Gewicht (g)'}}";
 html += "}";
 html += "}";
@@ -424,14 +444,25 @@ html += "document.getElementById('weight'+i).innerHTML=d.pots[i].weight.toFixed(
 html += "document.getElementById('state'+i).innerHTML=d.pots[i].state;";
 html += "document.getElementById('state'+i).className=d.pots[i].stateClass;";
 
+html += "if(lastWeight[i]===null || Math.abs(d.pots[i].weight-lastWeight[i])>=0.1){";
+
+html += "lastWeight[i]=d.pots[i].weight;";
+html += "if(i===0){";
+html += "const t=new Date();";
+html += "labels.push(t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));";
+html += "if(labels.length>200)labels.shift();";
+html += "}";
 html += "history[i].push(d.pots[i].weight);";
-html += "if(history[i].length>100)history[i].shift();";
+
+html += "if(history[i].length>200)history[i].shift();";
 
 html += "chart.data.datasets[i].data=history[i];";
 
 html += "}";
 
-html += "chart.data.labels=history[0].map((_,n)=>n);";
+html += "}";
+
+html += "chart.data.labels=labels;";
 html += "chart.update('none');";
 
 html += "}";
