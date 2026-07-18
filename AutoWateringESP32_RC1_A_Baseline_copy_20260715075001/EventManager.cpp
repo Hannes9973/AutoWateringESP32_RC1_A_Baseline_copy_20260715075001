@@ -1,36 +1,64 @@
 #include "EventManager.h"
-#include "TimeManager.h"
 
 EventManager Events;
 
 void EventManager::begin()
 {
-    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
-    {
-        _initialized[i] = false;
-        _lastWeight[i] = 0.0f;
-    }
 }
 
 void EventManager::update(uint8_t pot, float weight)
-{Serial.printf("EventManager: Topf %u Gewicht %.1f g\n", pot + 1, weight);
-    if(!_initialized[pot])
+{
+    EventState &s = _state[pot];
+
+    if(!s.initialized)
     {
-        _initialized[pot] = true;
-        _lastWeight[pot] = weight;
+        s.initialized = true;
+        s.lastWeight = weight;
         return;
     }
 
-    float diff = weight - _lastWeight[pot];
+    float diff = weight - s.lastWeight;
 
-    if(diff > 20.0f)
+    if(!s.candidateActive)
     {
-        Serial.printf(
-            "[EVENT] Topf %u gegossen (+%.1f g)\n",
-            pot + 1,
-            diff
-        );
+        if(diff >= WATERING_EVENT_THRESHOLD)
+        {
+            s.candidateActive = true;
+            s.candidateWeight = weight;
+            s.candidateSince = millis();
+
+            Serial.printf(
+                "[EVENT] Kandidat Topf %u (+%.1f g)\n",
+                pot + 1,
+                diff
+            );
+        }
+
+        s.lastWeight = weight;
+        return;
     }
 
-    _lastWeight[pot] = weight;
+    if(weight < s.candidateWeight - WATERING_STABLE_DELTA)
+    {
+        Serial.printf(
+            "[EVENT] Kandidat verworfen Topf %u\n",
+            pot + 1
+        );
+
+        s.candidateActive = false;
+        s.lastWeight = weight;
+        return;
+    }
+
+    if(millis() - s.candidateSince >= WATERING_CONFIRM_TIME)
+    {
+        Serial.printf(
+            "[EVENT] Topf %u gegossen\n",
+            pot + 1
+        );
+
+        s.candidateActive = false;
+    }
+
+    s.lastWeight = weight;
 }
