@@ -13,7 +13,7 @@ private:
     struct EventState
     {
         bool initialized = false;
-        float lastWeight = 0.0f;
+        float referenceWeight = 0.0f;
 
         bool candidateActive = false;
         float candidateWeight = 0.0f;

@@ -34,7 +34,7 @@ constexpr uint32_t TANK_CHECK_TIME = 5000UL;     // nach 5 Sekunden prüfen
 
 // Ereigniserkennung
 constexpr float WATERING_EVENT_THRESHOLD = 20.0f;     // mindestens 20 g Gewichtszunahme
-constexpr float WATERING_STABLE_DELTA = 2.0f;         // maximal ±2 g Schwankung
+constexpr float WATERING_STABLE_DELTA = 12.0f;         // maximal ±12 g Schwankung
 constexpr uint32_t WATERING_CONFIRM_TIME = 3000UL;    // 3 Sekunden stabil
 
 constexpr float MIN_ALLOWED_WEIGHT = 0.0f;

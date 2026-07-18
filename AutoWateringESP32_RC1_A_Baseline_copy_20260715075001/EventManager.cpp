@@ -10,18 +10,35 @@ void EventManager::update(uint8_t pot, float weight)
 {
     EventState &s = _state[pot];
 
-    if(!s.initialized)
+    // Erste Messung
+ // Erst initialisieren, wenn die Waage einen plausiblen Wert liefert
+if (!s.initialized)
+{
+    if (weight < 10.0f)
     {
-        s.initialized = true;
-        s.lastWeight = weight;
         return;
     }
 
-    float diff = weight - s.lastWeight;
+    s.initialized = true;
+    s.referenceWeight = weight;
 
-    if(!s.candidateActive)
+    Serial.printf(
+        "[EVENT] Referenz Topf %u = %.1f g\n",
+        pot + 1,
+        weight
+    );
+
+    return;
+}
+
+    //------------------------------------------------------
+    // Kein Kandidat aktiv
+    //------------------------------------------------------
+    if (!s.candidateActive)
     {
-        if(diff >= WATERING_EVENT_THRESHOLD)
+        float diff = weight - s.referenceWeight;
+
+        if (diff >= WATERING_EVENT_THRESHOLD)
         {
             s.candidateActive = true;
             s.candidateWeight = weight;
@@ -34,11 +51,24 @@ void EventManager::update(uint8_t pot, float weight)
             );
         }
 
-        s.lastWeight = weight;
         return;
     }
 
-    if(weight < s.candidateWeight - WATERING_STABLE_DELTA)
+    //------------------------------------------------------
+    // Kandidat aktiv
+    //------------------------------------------------------
+
+    // Neues Maximum gefunden
+    if (weight > s.candidateWeight)
+    {
+        s.candidateWeight = weight;
+
+        // Timer neu starten
+        s.candidateSince = millis();
+    }
+
+    // Nur bei deutlichem Gewichtsverlust verwerfen
+    if (weight < (s.candidateWeight - WATERING_STABLE_DELTA))
     {
         Serial.printf(
             "[EVENT] Kandidat verworfen Topf %u\n",
@@ -46,19 +76,27 @@ void EventManager::update(uint8_t pot, float weight)
         );
 
         s.candidateActive = false;
-        s.lastWeight = weight;
         return;
     }
 
-    if(millis() - s.candidateSince >= WATERING_CONFIRM_TIME)
+    // Noch nicht lange genug stabil
+    if (millis() - s.candidateSince < WATERING_CONFIRM_TIME)
     {
-        Serial.printf(
-            "[EVENT] Topf %u gegossen\n",
-            pot + 1
-        );
-
-        s.candidateActive = false;
+        return;
     }
 
-    s.lastWeight = weight;
+    //------------------------------------------------------
+// Gießvorgang bestätigt
+//------------------------------------------------------
+
+float amount = s.candidateWeight - s.referenceWeight;
+
+Serial.printf(
+    "[EVENT] Topf %u gegossen (+%.1f g)\n",
+    pot + 1,
+    amount
+);
+
+s.referenceWeight = s.candidateWeight;
+s.candidateActive = false;
 }
