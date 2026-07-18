@@ -1,6 +1,9 @@
 #include "WebManager.h"
 #include <LittleFS.h>
 #include "HistoryManager.h"
+#include "HistoryManager.h"
+
+extern HistoryManager History;
 
 WebManager::WebManager()
     : _server(80),
@@ -74,6 +77,48 @@ void WebManager::setupRoutes()
             "</script>"
             "</body></html>");
     });
+    _server.on("/history", [this]()
+{
+    if(!_server.hasArg("pot"))
+    {
+        _server.send(400, "text/plain", "missing pot");
+        return;
+    }
+
+    int pot = _server.arg("pot").toInt() - 1;
+
+    if(pot < 0 || pot >= NUMBER_OF_POTS)
+    {
+        _server.send(400, "text/plain", "invalid pot");
+        return;
+    }
+
+    std::vector<HistoryPoint> history;
+
+    if(!History.load(pot, history))
+    {
+        _server.send(200, "application/json", "[]");
+        return;
+    }
+
+    String json = "[";
+
+    for(size_t i = 0; i < history.size(); i++)
+    {
+        if(i > 0)
+            json += ",";
+
+        json += "{\"t\":";
+        json += history[i].timestamp;
+        json += ",\"w\":";
+        json += String(history[i].weight, 1);
+        json += "}";
+    }
+
+    json += "]";
+
+    _server.send(200, "application/json", json);
+});
 //-----------------------------------------------------
 // JSON Status
 //-----------------------------------------------------
