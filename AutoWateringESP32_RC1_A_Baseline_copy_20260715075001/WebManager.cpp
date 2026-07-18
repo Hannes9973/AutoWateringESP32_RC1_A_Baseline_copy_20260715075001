@@ -1,5 +1,6 @@
 #include "WebManager.h"
 #include <LittleFS.h>
+#include "HistoryManager.h"
 
 WebManager::WebManager()
     : _server(80),
@@ -16,17 +17,19 @@ void WebManager::begin(PotManager pot[],
     _pot = pot;
     _pump = pump;
     _storage = storage;
-if(!LittleFS.begin(true))
-{
-    Serial.println("LittleFS konnte nicht gestartet werden!");
-}
-else
-{
+
+    if (!LittleFS.begin(true))
+    {
+        Serial.println("LittleFS konnte nicht gestartet werden!");
+        return;
+    }
+
     Serial.println("LittleFS bereit.");
-}
+
     setupRoutes();
     _server.begin();
 }
+
 
 void WebManager::update()
 {
@@ -168,7 +171,7 @@ String WebManager::createWebPage()
 {
     String html;
 
-    html.reserve(10000);
+    html.reserve(25000);
 
     html += "<!DOCTYPE html>";
     html += "<html>";
