@@ -17,16 +17,32 @@ void HistoryManager::clear(uint8_t pot)
 
 bool HistoryManager::append(uint8_t pot, float weight)
 {
-    File file = LittleFS.open(fileName(pot), FILE_APPEND);
+    std::vector<HistoryPoint> history;
 
-    if (!file)
+    load(pot, history);
+
+    if(history.size() >= MAX_HISTORY_POINTS)
+    {
+        history.erase(history.begin());
+    }
+
+    HistoryPoint p;
+    p.timestamp = Time.now();
+    p.weight = weight;
+
+    history.push_back(p);
+
+    File file = LittleFS.open(fileName(pot), FILE_WRITE);
+
+    if(!file)
         return false;
 
-    uint32_t t = millis() / 1000;
-
-    file.print(t);
-    file.print(';');
-    file.println(weight, 1);
+    for(const auto& h : history)
+    {
+        file.print(h.timestamp);
+        file.print(';');
+        file.println(h.weight, 1);
+    }
 
     file.close();
 

@@ -19,6 +19,7 @@
 #include "WebManager.h"
 #include <LittleFS.h>
 #include "HistoryManager.h"
+#include "TimeManager.h"
 
 ScaleManager Scale;
 StorageManager Storage;
@@ -88,21 +89,29 @@ else
     Serial.println("LittleFS bereit.");
 }
     WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-    while(WiFi.status() != WL_CONNECTED)
-    {
-        delay(500);
-        Serial.print(".");
-    }
-
-    Serial.println();
-    Serial.println("WLAN verbunden");
-    Serial.print("IP-Adresse: ");
-    Serial.println(WiFi.localIP());
+while(WiFi.status() != WL_CONNECTED)
+{
+    delay(500);
+    Serial.print(".");
 }
-    delay(1000);
 
+Serial.println();
+Serial.println("WLAN verbunden.");
+
+Time.begin();
+Serial.print("Unix-Zeit: ");
+Serial.println(Time.now());
+
+if(Time.isValid())
+{
+    Serial.println("Zeit synchronisiert.");
+}
+else
+{
+    Serial.println("Keine Zeit verfuegbar.");
+}
     printHeader();
 
     Scale.begin();
@@ -130,7 +139,7 @@ Serial.println("System bereit.");
 Serial.println("Befehl 'help' fuer Hilfe.");
 }
 
-      
+ }     
 
 
 

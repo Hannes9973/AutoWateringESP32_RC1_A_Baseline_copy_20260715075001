@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <LittleFS.h>
 #include <vector>
+#include "TimeManager.h"
 
 struct HistoryPoint
 {
@@ -25,4 +26,7 @@ public:
 private:
 
     String fileName(uint8_t pot);
+    static constexpr size_t MAX_HISTORY_POINTS = 1000;
+
+
 };
