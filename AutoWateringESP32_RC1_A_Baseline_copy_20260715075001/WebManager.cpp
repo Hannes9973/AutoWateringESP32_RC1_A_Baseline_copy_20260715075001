@@ -294,6 +294,10 @@ String WebManager::createWebPage()
     html += "<body>";
 
     html += "<h1>🌱 AutoWatering RC2</h1>";
+    html += "<div class='card'>";
+html += "<h2>Gewichtsverlauf Topf 1</h2>";
+html += "<canvas id='historyChart'></canvas>";
+html += "</div>";
 
     //-------------------------------------------------
     // Karten
@@ -519,7 +523,33 @@ html += "updateStatus();";
 html += "setInterval(updateStatus,2000);";
 
 html += "</script>";
+html += "<script>";
 
+html += "fetch('/history?pot=1')";
+html += ".then(r=>r.json())";
+html += ".then(data=>{";
+
+html += "const ctx=document.getElementById('historyChart');";
+
+html += "new Chart(ctx,{";
+html += "type:'line',";
+html += "data:{";
+html += "labels:data.map(p=>p.t),";
+html += "datasets:[{";
+html += "label:'Gewicht (g)',";
+html += "data:data.map(p=>p.w),";
+html += "borderColor:'blue',";
+html += "fill:false";
+html += "}]";
+html += "},";
+html += "options:{";
+html += "responsive:true";
+html += "}";
+html += "});";
+
+html += "});";
+
+html += "</script>";
 html += "</body>";
 html += "</html>";
 

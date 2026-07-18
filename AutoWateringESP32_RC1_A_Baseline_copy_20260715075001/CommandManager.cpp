@@ -250,7 +250,25 @@ void CommandManager::processCommand(ScaleManager& scale,
         Serial.println("Alle Toepfe wurden zurueckgesetzt.");
     }
     else if(startsWith("history "))
+{if(startsWith("history clear "))
 {
+    int potIndex = atoi(_buffer + 14) - 1;
+
+    if(potIndex < 0 || potIndex >= NUMBER_OF_POTS)
+    {
+        Serial.println("Ungueltige Topfnummer");
+    }
+    else
+    {
+        History.clear(potIndex);
+
+        Serial.print("History Topf ");
+        Serial.print(potIndex + 1);
+        Serial.println(" geloescht.");
+    }
+
+    return;
+}
     int potIndex = atoi(_buffer + 8) - 1;
 
     if(potIndex < 0 || potIndex >= NUMBER_OF_POTS)
