@@ -18,6 +18,7 @@
 #include <WebServer.h>
 #include "WebManager.h"
 #include <LittleFS.h>
+#include "HistoryManager.h"
 
 ScaleManager Scale;
 StorageManager Storage;
@@ -25,7 +26,9 @@ PumpManager Pump;
 CommandManager Command;
 PotManager Pot[NUMBER_OF_POTS];
 WebManager Web;
+HistoryManager History;
 
+unsigned long lastHistorySave = 0;
 unsigned long lastPrint = 0;
 
 
@@ -104,8 +107,10 @@ else
 
     Scale.begin();
     Pump.begin();
+    History.begin();
     Storage.begin();
     Command.begin();
+    
 
     for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
 {
@@ -149,7 +154,15 @@ void loop()
     {
         Pot[i].update();
     }
+if(millis() - lastHistorySave >= 60000)
+{
+    lastHistorySave = millis();
 
+    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+    {
+        History.append(i, Pot[i].getWeight());
+    }
+}
     if(millis() - lastPrint >= 1000)
     {
         lastPrint = millis();

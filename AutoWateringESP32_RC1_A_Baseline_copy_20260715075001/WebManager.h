@@ -7,6 +7,7 @@
 #include "PotManager.h"
 #include "PumpManager.h"
 #include "StorageManager.h"
+#include "HistoryManager.h"
 
 class WebManager
 {
@@ -25,6 +26,7 @@ private:
     PotManager* _pot;
     PumpManager* _pump;
     StorageManager* _storage;
+    HistoryManager _history;
 
     void setupRoutes();
     String createWebPage();

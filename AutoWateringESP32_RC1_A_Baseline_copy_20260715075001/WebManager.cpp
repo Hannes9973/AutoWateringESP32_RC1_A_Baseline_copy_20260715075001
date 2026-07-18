@@ -28,6 +28,7 @@ void WebManager::begin(PotManager pot[],
 
     setupRoutes();
     _server.begin();
+    _history.begin();
 }
 
 

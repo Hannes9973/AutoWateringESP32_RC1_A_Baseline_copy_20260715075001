@@ -13,7 +13,10 @@
 
 #include <Arduino.h>
 #include <cstring>
+#include "HistoryManager.h"
 
+extern HistoryManager History;
+#include <vector>
 //=========================================================
 // Konstruktor
 //=========================================================
@@ -213,7 +216,9 @@ void CommandManager::processCommand(ScaleManager& scale,
                                     StorageManager& storage,
                                     PotManager pot[])
 {
-    
+    Serial.print("Empfangen: '");
+    Serial.print(_buffer);
+    Serial.println("'");
     if(equals("help"))
     {
         printHelp();
@@ -244,23 +249,37 @@ void CommandManager::processCommand(ScaleManager& scale,
 
         Serial.println("Alle Toepfe wurden zurueckgesetzt.");
     }
-    else if(startsWith("reset "))
-    {
-        int potIndex = atoi(_buffer + 6) - 1;
+    else if(startsWith("history "))
+{
+    int potIndex = atoi(_buffer + 8) - 1;
 
-        if(potIndex<0 || potIndex>=NUMBER_OF_POTS)
+    if(potIndex < 0 || potIndex >= NUMBER_OF_POTS)
+    {
+        Serial.println("Ungueltige Topfnummer");
+    }
+    else
+    {
+        std::vector<HistoryPoint> history;
+
+        if(!History.load(potIndex, history))
         {
-            Serial.println("Ungueltige Topfnummer");
+            Serial.println("Keine History vorhanden.");
         }
         else
         {
-            pot[potIndex].resetState();
+            Serial.print("History Topf ");
+            Serial.println(potIndex + 1);
 
-            Serial.print("Topf ");
-            Serial.print(potIndex+1);
-            Serial.println(" wurde zurueckgesetzt.");
+            for(const auto& p : history)
+            {
+                Serial.print(p.timestamp);
+                Serial.print(" s : ");
+                Serial.print(p.weight, 1);
+                Serial.println(" g");
+            }
         }
     }
+}
     else if(equals("verbose on"))
 {
     _verbose = true;
