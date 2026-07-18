@@ -20,6 +20,7 @@
 #include <LittleFS.h>
 #include "HistoryManager.h"
 #include "TimeManager.h"
+#include "EventManager.h"
 
 ScaleManager Scale;
 StorageManager Storage;
@@ -117,6 +118,7 @@ else
     Scale.begin();
     Pump.begin();
     History.begin();
+    Events.begin();
     Storage.begin();
     Command.begin();
     
@@ -150,8 +152,6 @@ Serial.println("Befehl 'help' fuer Hilfe.");
 
 void loop()
 {
-    
-
     Web.update();
 
     Scale.update();
@@ -162,16 +162,19 @@ void loop()
     for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
     {
         Pot[i].update();
+        Events.update(i, Pot[i].getWeight());
     }
-if(millis() - lastHistorySave >= 60000)
-{
-    lastHistorySave = millis();
 
-    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+    if(millis() - lastHistorySave >= 60000)
     {
-        History.append(i, Pot[i].getWeight());
+        lastHistorySave = millis();
+
+        for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+        {
+            History.append(i, Pot[i].getWeight());
+        }
     }
-}
+
     if(millis() - lastPrint >= 1000)
     {
         lastPrint = millis();
