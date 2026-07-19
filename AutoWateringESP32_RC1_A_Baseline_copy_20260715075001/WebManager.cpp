@@ -2,8 +2,10 @@
 #include <LittleFS.h>
 #include "HistoryManager.h"
 #include "HistoryManager.h"
+#include "WateringLogManager.h"
 
 extern HistoryManager History;
+extern WateringLogManager WateringLog;
 
 WebManager::WebManager()
     : _server(80),
@@ -118,7 +120,9 @@ void WebManager::setupRoutes()
     json += "]";
 
     _server.send(200, "application/json", json);
+    
 });
+
 //-----------------------------------------------------
 // JSON Status
 //-----------------------------------------------------
@@ -209,8 +213,50 @@ _server.on("/api/status", [this]()
             "</script>"
             "</body></html>");
     });
-}
 
+_server.on("/watering", HTTP_GET, [this]()
+{
+    if(!_server.hasArg("pot"))
+    {
+        _server.send(400, "text/plain", "missing pot");
+        return;
+    }
+
+    int pot = _server.arg("pot").toInt() - 1;
+
+    if(pot < 0 || pot >= NUMBER_OF_POTS)
+    {
+        _server.send(400, "text/plain", "invalid pot");
+        return;
+    }
+
+    std::vector<WateringPoint> watering;
+
+    if(!WateringLog.load(pot, watering))
+    {
+        _server.send(200, "application/json", "[]");
+        return;
+    }
+
+    String json = "[";
+
+    for(size_t i = 0; i < watering.size(); i++)
+    {
+        if(i > 0)
+            json += ",";
+
+        json += "{\"timestamp\":";
+        json += watering[i].timestamp;
+        json += ",\"amount\":";
+        json += String(watering[i].amount, 1);
+        json += "}";
+    }
+
+    json += "]";
+
+    _server.send(200, "application/json", json);
+});
+}
 //=========================================================
 
 String WebManager::createWebPage()
@@ -494,34 +540,7 @@ html += "}";
 
 html += "</script>";
 
-html += "fetch('/history?pot=1')";
-html += ".then(r=>r.json())";
 
-html += "data:history[0],";
-html += "labels=data.map(p=>new Date(p.t*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));";
-
-html += "const ctx=document.getElementById('historyChart');";
-html += "let chart=new Chart(ctx,{";
-html += "type:'line',";
-html += "data:{";
-html += "labels:labels,";
-html += "datasets:[{";
-html += "label:'Gewicht (g)',";
-html += "data:history[0],";
-html += "borderColor:'blue',";
-html += "fill:false";
-html += "}]";
-html += "},";
-html += "options:{";
-html += "responsive:true";
-html += "}";
-html += "});";
-html += "updateStatus();";
-html += "setInterval(updateStatus,2000);";
-
-html += "});";
-
-html += "</script>";
 html += "</body>";
 html += "</html>";
 
