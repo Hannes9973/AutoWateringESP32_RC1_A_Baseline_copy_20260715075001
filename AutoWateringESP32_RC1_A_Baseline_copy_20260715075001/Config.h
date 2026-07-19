@@ -20,7 +20,7 @@
 
 constexpr uint32_t SERIAL_BAUD = 115200;
 
-constexpr uint8_t NUMBER_OF_POTS = 3;
+constexpr uint8_t NUMBER_OF_POTS = 4;
 //=========================================================
 // Bewässerung
 //=========================================================
@@ -45,9 +45,9 @@ constexpr float MAX_ALLOWED_WEIGHT = 5000.0f;
 
 constexpr bool WIFI_ENABLED = true;
 
-constexpr char WIFI_SSID[] = "Galaxy S1091db";
+constexpr char WIFI_SSID[] = "FRITZ!Box 7491";
 
-constexpr char WIFI_PASSWORD[] = "ywdb0133";
+constexpr char WIFI_PASSWORD[] = "20946658577422564934";
 
 //=========================================================
 // Logging
@@ -70,22 +70,24 @@ constexpr LogLevel DEFAULT_LOG_LEVEL = LogLevel::INFO;
 
 constexpr uint32_t STATUS_INTERVAL = 1000UL;
 
-//=========================================================
+//==============================================================
 // HX711
-//=========================================================
+//==============================================================
 
 constexpr uint8_t HX711_DT[NUMBER_OF_POTS] =
 {
     4,
     22,
-    18
+    18,
+    14
 };
 
 constexpr uint8_t HX711_SCK[NUMBER_OF_POTS] =
 {
     5,
     21,
-    19
+    19,
+    13
 };
 
 //=========================================================
@@ -98,15 +100,16 @@ constexpr uint8_t SCALE_AVERAGE_SAMPLES = 10;
 
 constexpr uint8_t SCALE_TARE_SAMPLES = 20;
 
-//=========================================================
+//==============================================================
 // Pumpen
-//=========================================================
+//==============================================================
 
 constexpr uint8_t PUMP_PIN[NUMBER_OF_POTS] =
 {
     25,
     26,
-    27
+    27,
+    32      // Pumpe 4
 };
 
 enum class PumpActiveLevel : uint8_t
