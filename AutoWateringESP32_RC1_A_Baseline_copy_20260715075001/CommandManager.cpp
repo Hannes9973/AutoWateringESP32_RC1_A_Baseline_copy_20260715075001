@@ -14,6 +14,7 @@
 #include <Arduino.h>
 #include <cstring>
 #include "HistoryManager.h"
+#include "WateringLogManager.h"
 
 extern HistoryManager History;
 #include <vector>
@@ -91,6 +92,11 @@ void CommandManager::printHelp() const
     Serial.println("tare 1");
     Serial.println("tare 2");
     Serial.println("tare 3");
+
+    Serial.println("watering 1");
+Serial.println("watering 2");
+Serial.println("watering 3");
+Serial.println("watering 4");
 
     Serial.println();
 
@@ -249,6 +255,54 @@ void CommandManager::processCommand(ScaleManager& scale,
 
         Serial.println("Alle Toepfe wurden zurueckgesetzt.");
     }
+    else if(startsWith("watering clear "))
+{
+    int potIndex = atoi(_buffer + 15) - 1;
+
+    if(potIndex < 0 || potIndex >= NUMBER_OF_POTS)
+    {
+        Serial.println("Ungueltige Topfnummer");
+    }
+    else
+    {
+        WateringLog.clear(potIndex);
+
+        Serial.print("Watering Topf ");
+        Serial.print(potIndex + 1);
+        Serial.println(" geloescht.");
+    }
+}
+    else if(startsWith("watering "))
+{
+    int potIndex = atoi(_buffer + 9) - 1;
+
+    if(potIndex < 0 || potIndex >= NUMBER_OF_POTS)
+    {
+        Serial.println("Ungueltige Topfnummer");
+    }
+    else
+    {
+        std::vector<WateringPoint> watering;
+
+        if(!WateringLog.load(potIndex, watering))
+        {
+            Serial.println("Keine Giessereignisse vorhanden.");
+        }
+        else
+        {
+            Serial.print("Watering Topf ");
+            Serial.println(potIndex + 1);
+
+            for(const auto& p : watering)
+            {
+                Serial.print(p.timestamp);
+                Serial.print(" : +");
+                Serial.print(p.amount, 1);
+                Serial.println(" g");
+            }
+        }
+    }
+}
     else if(startsWith("history "))
 {if(startsWith("history clear "))
 {

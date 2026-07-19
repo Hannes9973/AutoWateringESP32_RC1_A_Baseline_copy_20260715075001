@@ -21,6 +21,7 @@
 #include "HistoryManager.h"
 #include "TimeManager.h"
 #include "EventManager.h"
+#include "WateringLogManager.h"
 
 ScaleManager Scale;
 StorageManager Storage;
@@ -137,6 +138,7 @@ else
 }
 
 Web.begin(Pot, &Pump, &Storage);
+WateringLog.begin();
 
 Serial.println("System bereit.");
 Serial.println("Befehl 'help' fuer Hilfe.");

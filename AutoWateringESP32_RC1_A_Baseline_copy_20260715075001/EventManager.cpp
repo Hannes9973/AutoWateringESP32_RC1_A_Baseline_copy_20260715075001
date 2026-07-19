@@ -1,4 +1,5 @@
 #include "EventManager.h"
+#include "WateringLogManager.h"
 
 EventManager Events;
 
@@ -96,7 +97,11 @@ Serial.printf(
     pot + 1,
     amount
 );
-
+WateringLog.add(
+    pot,
+    Time.now(),
+    amount
+);
 s.referenceWeight = s.candidateWeight;
 s.candidateActive = false;
 }
