@@ -236,8 +236,8 @@ _server.on("/watering", HTTP_GET, [this]()
     {
         _server.send(200, "application/json", "[]");
         return;
-    }
-
+    
+}
     String json = "[";
 
     for(size_t i = 0; i < watering.size(); i++)
