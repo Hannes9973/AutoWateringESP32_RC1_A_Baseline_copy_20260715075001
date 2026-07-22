@@ -1,7 +1,6 @@
 #include "WebManager.h"
 #include <LittleFS.h>
 #include "HistoryManager.h"
-#include "HistoryManager.h"
 #include "WateringLogManager.h"
 
 extern HistoryManager History;
@@ -233,10 +232,10 @@ _server.on("/watering", HTTP_GET, [this]()
     std::vector<WateringPoint> watering;
 
     if(!WateringLog.load(pot, watering))
-    {
-        _server.send(200, "application/json", "[]");
-        return;
-    
+    if(!WateringLog.load(pot, watering))
+{
+    _server.send(200, "application/json", "[]");
+    return;
 }
     String json = "[";
 
@@ -343,6 +342,17 @@ String WebManager::createWebPage()
     html += "<div class='card'>";
 html += "<h2>Gewichtsverlauf Topf 1</h2>";
 html += "<canvas id='historyChart'></canvas>";
+html += "</div>";
+html += "<div class='card'>";
+html += "<h2>Bewässerungen</h2>";
+
+html += "<table id='wateringTable' style='width:100%;border-collapse:collapse'>";
+html += "<tr>";
+html += "<th style='text-align:left'>Zeit</th>";
+html += "<th style='text-align:right'>Menge</th>";
+html += "</tr>";
+html += "</table>";
+
 html += "</div>";
 
     //-------------------------------------------------

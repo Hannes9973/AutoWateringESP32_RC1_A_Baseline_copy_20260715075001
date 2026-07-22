@@ -5,15 +5,16 @@
 
 class ScaleManager;
 class PumpManager;
-
+class StorageManager;
 class PotManager
 {
 public:
     PotManager();
 
     void begin(uint8_t potNumber,
-               ScaleManager* scale,
-               PumpManager* pump);
+           ScaleManager* scale,
+           PumpManager* pump,
+           StorageManager* storage);
 
     void update();
 
@@ -40,7 +41,8 @@ private:
     uint8_t _pot;
     ScaleManager* _scale;
     PumpManager* _pump;
-    PotStatus _status;
+     StorageManager* _storage;
+     PotStatus _status;
 
     void updateState();
     void startWatering();

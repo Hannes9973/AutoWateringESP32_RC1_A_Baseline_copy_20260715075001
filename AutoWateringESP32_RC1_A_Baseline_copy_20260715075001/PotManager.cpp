@@ -1,13 +1,19 @@
 #include "PotManager.h"
 #include "ScaleManager.h"
 #include "PumpManager.h"
+#include "StorageManager.h"
 
 PotManager::PotManager():_pot(0),_scale(nullptr),_pump(nullptr){}
 
-void PotManager::begin(uint8_t potNumber,ScaleManager* scale,PumpManager* pump){
-    _pot=potNumber;
-    _scale=scale;
-    _pump=pump;
+void PotManager::begin(uint8_t potNumber,
+                       ScaleManager* scale,
+                       PumpManager* pump,
+                       StorageManager* storage)
+{
+    _pot = potNumber;
+    _scale = scale;
+    _pump = pump;
+    _storage = storage;
 }
 
 void PotManager::update(){
@@ -74,9 +80,17 @@ void PotManager::setState(PotState state)
 
 void PotManager::resetState()
 {
+    if(_scale)
+    {
+        _scale->tare(_pot);
+        _storage->saveScale(_pot, *_scale);
+    }
+
     _status.state = PotState::WAIT_FOR_DRY;
     _status.errorCount = 0;
     _status.wateringTime = millis();
+
+    _status.weight = _scale ? _scale->getWeight(_pot) : 0.0f;
     _status.wateringStartWeight = _status.weight;
 }
 

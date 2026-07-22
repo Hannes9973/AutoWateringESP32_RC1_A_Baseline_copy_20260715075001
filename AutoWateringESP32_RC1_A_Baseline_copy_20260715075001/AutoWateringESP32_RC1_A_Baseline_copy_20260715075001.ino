@@ -129,7 +129,7 @@ else
 {
     Storage.loadScale(i, Scale);
 
-    Pot[i].begin(i, &Scale, &Pump);
+    Pot[i].begin(i, &Scale, &Pump, &Storage);
 
     Pot[i].setStartWeight(DEFAULT_START_WEIGHT);
     Pot[i].setTargetWeight(DEFAULT_TARGET_WEIGHT);
