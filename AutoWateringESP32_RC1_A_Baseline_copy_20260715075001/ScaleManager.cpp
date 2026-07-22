@@ -73,6 +73,7 @@ long ScaleManager::readAverage(
 
 void ScaleManager::update()
 {
+    
     for (uint8_t pot = 0;
          pot < NUMBER_OF_POTS;
          pot++)
@@ -82,12 +83,11 @@ void ScaleManager::update()
 
         if (!_ready[pot])
             continue;
-
-        _raw[pot] =
+_raw[pot] =
             readAverage(
                 pot,
                 SCALE_AVERAGE_SAMPLES);
-
+      
         _weight[pot] =
             (_raw[pot] - _offset[pot])
             / _calibration[pot];
@@ -150,6 +150,10 @@ void ScaleManager::tare(uint8_t pot)
     _raw[pot] = _offset[pot];
 
     _weight[pot] = 0.0f;
+    Serial.print("TARE Pot ");
+Serial.print(pot + 1);
+Serial.print(" Offset=");
+Serial.println(_offset[pot]);
 }
 
 //=========================================================
@@ -207,4 +211,41 @@ float ScaleManager::getCalibration(
         return 0.0f;
 
     return _calibration[pot];
+}
+
+//=========================================================
+// Kalibrieren
+//=========================================================
+
+bool ScaleManager::calibrate(uint8_t pot,
+                             float referenceWeight)
+{
+    if (pot >= NUMBER_OF_POTS)
+        return false;
+
+    if (referenceWeight <= 0.0f)
+        return false;
+
+    if (!_scale[pot].is_ready())
+        return false;
+
+    // Aktuellen Rohwert neu messen
+    long raw = readAverage(pot, SCALE_AVERAGE_SAMPLES);
+
+    long delta = raw - _offset[pot];
+
+    if (delta == 0)
+        return false;
+
+    float calibration =
+        (float)delta / referenceWeight;
+
+    _calibration[pot] = calibration;
+
+    // Sofort Gewicht neu berechnen
+    _raw[pot] = raw;
+    _weight[pot] =
+        (raw - _offset[pot]) / calibration;
+
+    return true;
 }

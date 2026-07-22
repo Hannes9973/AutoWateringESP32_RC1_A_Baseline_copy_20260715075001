@@ -47,6 +47,8 @@ public:
 
     void setCalibration(uint8_t pot, float factor);
     float getCalibration(uint8_t pot) const;
+    bool calibrate(uint8_t pot,
+               float referenceWeight);
 
 private:
 
@@ -76,4 +78,5 @@ private:
 
     long readAverage(uint8_t pot,
                      uint8_t samples = 10);
+                     
 };

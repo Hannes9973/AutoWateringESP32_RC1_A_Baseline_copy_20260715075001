@@ -35,7 +35,7 @@ public:
 void resetErrorCount();
     void setState(PotState state);
 void resetState();
-    
+   bool calibrate(float referenceWeight); 
 
 private:
     uint8_t _pot;

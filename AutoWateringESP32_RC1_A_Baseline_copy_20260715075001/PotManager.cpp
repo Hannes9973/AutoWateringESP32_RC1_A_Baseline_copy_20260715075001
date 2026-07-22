@@ -93,7 +93,21 @@ void PotManager::resetState()
     _status.weight = _scale ? _scale->getWeight(_pot) : 0.0f;
     _status.wateringStartWeight = _status.weight;
 }
+bool PotManager::calibrate(float referenceWeight)
+{
+    if (!_scale)
+        return false;
 
+    if (!_storage)
+        return false;
+
+    if (!_scale->calibrate(_pot, referenceWeight))
+        return false;
+
+    //_storage->saveScale(_pot, *_scale);
+
+    return true;
+}
 
 const char* PotManager::getStateName() const
 {

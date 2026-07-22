@@ -78,6 +78,37 @@ void WebManager::setupRoutes()
             "</script>"
             "</body></html>");
     });
+    //=========================================================
+// Kalibrieren
+//=========================================================
+
+_server.on("/calibrate", [this]()
+{
+    if(!_server.hasArg("pot") || !_server.hasArg("weight"))
+    {
+        _server.send(400, "text/plain", "missing parameter");
+        return;
+    }
+
+    int p = _server.arg("pot").toInt();
+
+    if(p < 0 || p >= NUMBER_OF_POTS)
+    {
+        _server.send(400, "text/plain", "invalid pot");
+        return;
+    }
+
+    float weight = _server.arg("weight").toFloat();
+
+    if(_pot[p].calibrate(weight))
+    {
+        _server.send(200, "text/plain", "OK");
+    }
+    else
+    {
+        _server.send(400, "text/plain", "Calibration failed");
+    }
+});
     _server.on("/history", [this]()
 {
     if(!_server.hasArg("pot"))
@@ -464,12 +495,30 @@ html += "</span>";
         html += "&nbsp;";
 
         html += "<a href='/pumpoff?pot=";
-        html += String(i);
-        html += "'>";
-        html += "<button style='padding:8px 20px;'>Pumpe AUS</button>";
-        html += "</a>";
+html += String(i);
+html += "'>";
+html += "<button style='padding:8px 20px;'>Pumpe AUS</button>";
+html += "</a>";
 
-        html += "</div>";
+html += "<hr>";
+
+html += "<form action='/calibrate' method='get'>";
+
+html += "<input type='hidden' name='pot' value='";
+html += String(i);
+html += "'>";
+
+html += "<div class='value'><b>Referenzgewicht (g):</b><br>";
+html += "<input type='number' step='0.1' name='weight' value='1000'>";
+html += "</div>";
+
+html += "<br>";
+
+html += "<input type='submit' value='Kalibrieren'>";
+
+html += "</form>";
+
+html += "</div>";
     }
 
     //-----------------------------------------------------

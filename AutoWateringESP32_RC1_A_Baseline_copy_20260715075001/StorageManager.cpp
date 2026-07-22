@@ -89,10 +89,7 @@ bool StorageManager::loadScale(uint8_t pot,
             keyOffset(pot).c_str(),
             0);
 
-    float calibration =
-        _prefs.getFloat(
-            keyCalibration(pot).c_str(),
-            DEFAULT_CALIBRATION_FACTOR);
+    float calibration = 110.63f;
 
     scale.setOffset(
         pot,
