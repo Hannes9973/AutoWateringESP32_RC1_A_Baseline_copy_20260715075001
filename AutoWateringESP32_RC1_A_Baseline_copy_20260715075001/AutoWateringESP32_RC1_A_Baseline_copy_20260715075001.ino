@@ -24,6 +24,7 @@
 #include "WateringLogManager.h"
 #include <ArduinoOTA.h>
 #include "OTAManager.h"
+#include "BuildManager.h"
 
 OTAManager OTA;
 

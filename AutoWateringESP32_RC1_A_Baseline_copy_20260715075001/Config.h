@@ -11,8 +11,19 @@
 
 #ifndef CONFIG_H
 #define CONFIG_H
-
+#define FW_VERSION "RC2.1.0"
 #include <Arduino.h>
+
+//=========================================================
+// Firmware
+//=========================================================
+
+#define FW_NAME        "AutoWateringESP32"
+#define FW_VERSION     "RC2.1.0"
+#define FW_BRANCH      "rc1-b"
+
+#define BUILD_DATE     __DATE__
+#define BUILD_TIME     __TIME__
 
 //=========================================================
 // Allgemein
