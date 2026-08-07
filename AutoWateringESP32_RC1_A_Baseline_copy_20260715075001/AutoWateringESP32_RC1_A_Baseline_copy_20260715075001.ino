@@ -22,6 +22,12 @@
 #include "TimeManager.h"
 #include "EventManager.h"
 #include "WateringLogManager.h"
+#include <ArduinoOTA.h>
+#include "OTAManager.h"
+
+OTAManager OTA;
+
+
 
 ScaleManager Scale;
 StorageManager Storage;
@@ -44,6 +50,11 @@ void printHeader()
     Serial.println("========================================");
     Serial.println(" AutoWateringESP32 V0.7.1");
     Serial.println("========================================");
+    Serial.println();
+Serial.println("########################################");
+Serial.println("##### OTA BUILD TEST 123456789 #####");
+Serial.println("########################################");
+Serial.println();
 }
 
 
@@ -138,9 +149,11 @@ else
 }
 
 Web.begin(Pot, &Pump, &Storage);
+OTA.begin();
 WateringLog.begin();
 
-Serial.println("System bereit.");
+Serial.println("***** OTA BUILD 2026-08-07 15:30 *****");
+Serial.println("RC2 OTA Test V3");
 Serial.println("Befehl 'help' fuer Hilfe.");
 }
 
@@ -159,6 +172,7 @@ void loop()
 
     Scale.update();
     Pump.update();
+OTA.update();
 
     Command.update(Scale, Pump, Storage, Pot);
 

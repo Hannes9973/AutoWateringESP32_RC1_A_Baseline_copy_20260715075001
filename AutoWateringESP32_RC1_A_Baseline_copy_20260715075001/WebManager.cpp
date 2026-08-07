@@ -3,6 +3,9 @@
 #include "HistoryManager.h"
 #include "WateringLogManager.h"
 
+
+
+
 extern HistoryManager History;
 extern WateringLogManager WateringLog;
 
@@ -30,7 +33,11 @@ void WebManager::begin(PotManager pot[],
 
     Serial.println("LittleFS bereit.");
 
+   
     setupRoutes();
+
+
+_server.begin();
     _server.begin();
     _history.begin();
 }
@@ -656,4 +663,8 @@ json += "\"}";
     json += "}";
 
     return json;
+}
+WebServer& WebManager::getServer()
+{
+    return _server;
 }

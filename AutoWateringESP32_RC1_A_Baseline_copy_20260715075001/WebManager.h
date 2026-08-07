@@ -9,6 +9,8 @@
 #include "StorageManager.h"
 #include "HistoryManager.h"
 
+
+
 class WebManager
 {
 public:
@@ -19,6 +21,7 @@ public:
                StorageManager* storage);
 
     void update();
+WebServer& getServer();
 
 private:
     WebServer _server;
