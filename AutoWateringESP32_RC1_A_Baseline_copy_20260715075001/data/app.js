@@ -1,3 +1,15 @@
+//------------------------------------------------------------
+// AutoWatering RC2.6.1
+//------------------------------------------------------------
+
+const container = document.getElementById("pots");
+
+let dashboardBuilt = false;
+
+//------------------------------------------------------------
+// Daten holen
+//------------------------------------------------------------
+
 async function refresh()
 {
     try
@@ -8,113 +20,19 @@ async function refresh()
         document.getElementById("connection").innerHTML =
             "🟢 Online";
 
-        const now = new Date();
-
         document.getElementById("lastUpdate").innerHTML =
             "Letzte Aktualisierung: " +
-            now.toLocaleTimeString("de-DE");
+            new Date().toLocaleTimeString("de-DE");
 
-        const container =
-            document.getElementById("pots");
+        //----------------------------------------------------
 
-        container.innerHTML = "";
-
-        data.pots.forEach((pot,index)=>
+        if(!dashboardBuilt)
         {
-            let percent = 0;
+            buildDashboard(data);
+            dashboardBuilt = true;
+        }
 
-            if(pot.target > pot.start)
-            {
-                percent =
-                    ((pot.weight-pot.start)/
-                    (pot.target-pot.start))*100;
-            }
-
-            percent =
-                Math.max(0,
-                Math.min(100,percent));
-
-            let progressColor="#0d6efd";
-
-            if(percent>=90)
-                progressColor="#28a745";
-            else if(percent>=50)
-                progressColor="#ffc107";
-            else
-                progressColor="#0d6efd";
-
-            if(pot.weight>pot.target)
-                progressColor="#dc3545";
-
-            container.innerHTML +=
-            `
-            <div class="card ${pot.stateClass}">
-
-                <h2>Topf ${index+1}</h2>
-
-                <div class="weight">
-                    ${pot.weight.toFixed(1)} g
-                </div>
-
-                <div class="status">
-                    ${statusText(pot)}
-                </div>
-
-                <hr>
-
-                <div class="progress">
-
-                    <div
-                        class="progressbar"
-                        style="
-                            width:${percent}%;
-                            background:${progressColor};
-                        ">
-                    </div>
-
-                </div>
-
-                <div class="percent">
-                    ${percent.toFixed(0)} %
-                </div>
-
-                <p>
-                    Start:
-                    ${pot.start.toFixed(1)} g
-                </p>
-
-                <p>
-                    Ziel:
-                    ${pot.target.toFixed(1)} g
-                </p>
-
-                <div class="buttons">
-
-                    <button
-                        class="resetBtn"
-                        onclick="resetPot(${index})">
-                        Reset
-                    </button>
-
-                    <button
-                        class="tareBtn"
-                        onclick="tarePot(${index})">
-                        Tara
-                    </button>
-
-                    <button
-    class="pumpBtn"
-    onclick="pumpPot(${index}, ${pot.pumpRunning})">
-
-    ${pot.pumpRunning ? "⏹ Stop" : "▶ Start"}
-
-</button>
-
-                </div>
-
-            </div>
-            `;
-        });
+        updateDashboard(data);
     }
     catch(e)
     {
@@ -125,6 +43,275 @@ async function refresh()
             "Keine Verbindung";
     }
 }
+
+//------------------------------------------------------------
+// Dashboard erzeugen
+//------------------------------------------------------------
+
+function buildDashboard(data)
+{
+    container.innerHTML = "";
+
+    data.pots.forEach((pot,index)=>
+    {
+        container.innerHTML += `
+
+<div
+class="card ${pot.stateClass}"
+id="card${index}">
+
+<h2>Topf ${index+1}</h2>
+
+<div
+class="weight"
+id="weight${index}">
+</div>
+
+<div
+class="status"
+id="status${index}">
+</div>
+
+<hr>
+
+<div class="progress">
+
+<div
+class="progressbar"
+id="progress${index}">
+</div>
+
+</div>
+
+<div
+class="percent"
+id="percent${index}">
+</div>
+
+<div class="settings">
+
+<label>Startgewicht</label>
+
+<input
+class="weightInput"
+id="start${index}"
+type="number"
+step="0.1">
+
+<label>Zielgewicht</label>
+
+<input
+class="weightInput"
+id="target${index}"
+type="number"
+step="0.1">
+
+<button
+class="saveBtn"
+onclick="savePot(${index})">
+
+💾 Speichern
+
+</button>
+
+</div>
+
+<div class="buttons">
+
+<button
+class="resetBtn"
+onclick="resetPot(${index})">
+
+Reset
+
+</button>
+
+<button
+class="tareBtn"
+onclick="tarePot(${index})">
+
+Tara
+
+</button>
+
+<button
+class="pumpBtn"
+id="pumpBtn${index}"
+onclick="pumpPot(${index})">
+
+▶ Start
+
+</button>
+
+</div>
+
+</div>
+
+`;
+    });
+}
+
+//------------------------------------------------------------
+// Dashboard aktualisieren
+//------------------------------------------------------------
+
+function updateDashboard(data)
+{
+    data.pots.forEach((pot,index)=>
+    {
+        //----------------------------------------------------
+        // Gewicht
+        //----------------------------------------------------
+
+        document.getElementById("weight"+index).innerHTML =
+            pot.weight.toFixed(1) + " g";
+
+        //----------------------------------------------------
+        // Status
+        //----------------------------------------------------
+
+        document.getElementById("status"+index).innerHTML =
+            statusText(pot);
+
+        //----------------------------------------------------
+        // Karte
+        //----------------------------------------------------
+
+        document.getElementById("card"+index).className =
+            "card " + pot.stateClass;
+
+        //----------------------------------------------------
+        // Prozent
+        //----------------------------------------------------
+
+        let percent = 0;
+
+        if(pot.target > pot.start)
+        {
+            percent =
+                ((pot.weight-pot.start)/
+                (pot.target-pot.start))*100;
+        }
+
+        percent =
+            Math.max(0,
+            Math.min(100,percent));
+
+        let color="#0d6efd";
+
+        if(percent>=90)
+            color="#28a745";
+        else if(percent>=50)
+            color="#ffc107";
+
+        if(pot.weight>pot.target)
+            color="#dc3545";
+
+        document.getElementById("progress"+index).style.width =
+            percent+"%";
+
+        document.getElementById("progress"+index).style.background =
+            color;
+
+        document.getElementById("percent"+index).innerHTML =
+            percent.toFixed(0)+" %";
+
+        //----------------------------------------------------
+        // Eingabefelder NICHT überschreiben,
+        // solange der Benutzer tippt
+        //----------------------------------------------------
+
+        if(document.activeElement.id != "start"+index)
+        {
+            document.getElementById("start"+index).value =
+                pot.start.toFixed(1);
+        }
+
+        if(document.activeElement.id != "target"+index)
+        {
+            document.getElementById("target"+index).value =
+                pot.target.toFixed(1);
+        }
+
+        //----------------------------------------------------
+        // Pumpenbutton
+        //----------------------------------------------------
+
+        const btn =
+            document.getElementById("pumpBtn"+index);
+
+        if(pot.pumpRunning)
+        {
+            btn.innerHTML = "⏹ Stop";
+        }
+        else
+        {
+            btn.innerHTML = "▶ Start";
+        }
+    });
+}
+//------------------------------------------------------------
+// Speichern
+//------------------------------------------------------------
+
+async function savePot(id)
+{
+    const start =
+        document.getElementById("start"+id).value;
+
+    const target =
+        document.getElementById("target"+id).value;
+
+    await fetch(
+    "/save?pot="+id+
+    "&start="+start+
+    "&target="+target);
+
+setTimeout(refresh,300);
+}
+
+//------------------------------------------------------------
+// Reset
+//------------------------------------------------------------
+
+async function resetPot(id)
+{
+    await fetch("/reset?pot="+id);
+}
+
+//------------------------------------------------------------
+// Tara
+//------------------------------------------------------------
+
+async function tarePot(id)
+{
+    await fetch("/tare?pot="+id);
+}
+
+//------------------------------------------------------------
+// Pumpe
+//------------------------------------------------------------
+
+async function pumpPot(id)
+{
+    const button =
+        document.getElementById("pumpBtn"+id);
+
+    if(button.innerHTML.includes("Stop"))
+    {
+        await fetch("/pumpoff?pot="+id);
+    }
+    else
+    {
+        await fetch("/pumpon?pot="+id);
+    }
+
+    refresh();
+}
+
+//------------------------------------------------------------
+// Statustext
+//------------------------------------------------------------
 
 function statusText(pot)
 {
@@ -147,31 +334,9 @@ function statusText(pot)
     }
 }
 
-async function resetPot(id)
-{
-    await fetch("/reset?pot="+id);
-    refresh();
-}
-
-async function tarePot(id)
-{
-    await fetch("/tare?pot="+id);
-    refresh();
-}
-
-async function pumpPot(id, running)
-{
-    if(running)
-    {
-        await fetch("/pumpoff?pot=" + id);
-    }
-    else
-    {
-        await fetch("/pumpon?pot=" + id);
-    }
-
-    refresh();
-}
+//------------------------------------------------------------
+// Start
+//------------------------------------------------------------
 
 refresh();
 

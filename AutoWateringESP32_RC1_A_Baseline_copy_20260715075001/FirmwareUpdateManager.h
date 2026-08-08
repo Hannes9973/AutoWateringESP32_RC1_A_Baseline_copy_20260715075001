@@ -6,10 +6,17 @@
 class FirmwareUpdateManager
 {
 public:
+    FirmwareUpdateManager();
+
     void begin(WebServer& server);
 
 private:
-    static void handleUpload(WebServer& server);
+    WebServer* _server;
+
+    void registerRoutes();
+
+    void handleUpload();
+    void handleUploadFinished();
 };
 
 #endif

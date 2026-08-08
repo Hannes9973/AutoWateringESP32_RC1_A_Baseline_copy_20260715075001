@@ -56,9 +56,16 @@ void WebManager::update()
 void WebManager::setupRoutes()
 {
     //-----------------------------------------------------
-    // Hauptseite
-    //-----------------------------------------------------
+// Hauptseite
+//-----------------------------------------------------
 
+_server.serveStatic("/", LittleFS, "/index.html");
+
+_server.serveStatic("/style.css", LittleFS, "/style.css");
+
+_server.serveStatic("/app.js", LittleFS, "/app.js");
+
+// Firmware Update
 _server.serveStatic("/update", LittleFS, "/update.html");
 _server.serveStatic("/update.css", LittleFS, "/update.css");
 _server.serveStatic("/update.js", LittleFS, "/update.js");
@@ -125,6 +132,15 @@ _server.on("/update", HTTP_POST, [this]()
         if(_server.hasArg("pot"))
         {
             int p = _server.arg("pot").toInt();
+            Serial.println("===== SAVE =====");
+Serial.print("Pot: ");
+Serial.println(_server.arg("pot"));
+
+Serial.print("Start: ");
+Serial.println(_server.arg("start"));
+
+Serial.print("Target: ");
+Serial.println(_server.arg("target"));
 
             if(p >= 0 && p < NUMBER_OF_POTS)
             {
@@ -153,6 +169,15 @@ _server.on("/calibrate", [this]()
     }
 
     int p = _server.arg("pot").toInt();
+    Serial.println("===== SAVE =====");
+Serial.print("Pot: ");
+Serial.println(_server.arg("pot"));
+
+Serial.print("Start: ");
+Serial.println(_server.arg("start"));
+
+Serial.print("Target: ");
+Serial.println(_server.arg("target"));
 
     if(p < 0 || p >= NUMBER_OF_POTS)
     {
@@ -282,22 +307,32 @@ _server.on("/api/status", [this]()
 
                 _pot[p].setStartWeight(start);
                 _pot[p].setTargetWeight(target);
+Serial.println("=== Nach setStartWeight ===");
 
+Serial.print("Start = ");
+Serial.println(_pot[p].getStartWeight());
+
+Serial.print("Target = ");
+Serial.println(_pot[p].getTargetWeight());
                 _storage->savePotConfig(p,_pot[p]);
+Serial.println("=== Nach savePotConfig ===");
 
+Serial.print("Start = ");
+Serial.println(_pot[p].getStartWeight());
+
+Serial.print("Target = ");
+Serial.println(_pot[p].getTargetWeight());
                 Serial.print("Topf ");
                 Serial.print(p+1);
                 Serial.println(" gespeichert.");
             }
         }
 
-        _server.send(200,"text/html",
-            "<html><body>"
-            "<h2>Gespeichert</h2>"
-            "<script>"
-            "setTimeout(function(){window.location='/'},300);"
-            "</script>"
-            "</body></html>");
+        _server.send(
+    200,
+    "application/json",
+    "{\"success\":true}"
+);
     });
 
 _server.on("/watering", HTTP_GET, [this]()

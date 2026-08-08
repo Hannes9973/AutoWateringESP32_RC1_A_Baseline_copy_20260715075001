@@ -3,6 +3,11 @@
 #include <Update.h>
 #include <LittleFS.h>
 
+FirmwareUpdateManager::FirmwareUpdateManager()
+: _server(nullptr)
+{
+}
+
 void FirmwareUpdateManager::begin(WebServer& server)
 {
     Serial.println("FirmwareUpdateManager gestartet");
