@@ -55,11 +55,11 @@ void WebManager::setupRoutes()
     //-----------------------------------------------------
     // Hauptseite
     //-----------------------------------------------------
+_server.serveStatic("/", LittleFS, "/index.html");
+_server.serveStatic("/style.css", LittleFS, "/style.css");
+_server.serveStatic("/app.js", LittleFS, "/app.js");
 
-   _server.on("/", [this]()
-{
-    _server.send(200, "text/html", createWebPage());
-});
+ 
 
     //-----------------------------------------------------
     // Reset
