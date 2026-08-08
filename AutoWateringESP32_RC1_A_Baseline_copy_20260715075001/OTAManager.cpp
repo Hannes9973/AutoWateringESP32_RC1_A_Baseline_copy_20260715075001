@@ -35,8 +35,11 @@ void OTAManager::begin()
             Serial.printf("OTA Fehler %u\n", error);
         });
 
-    ArduinoOTA.begin();
+    ArduinoOTA.setHostname("AutoWateringESP32");
+    ArduinoOTA.setPassword("");
 ArduinoOTA.setRebootOnSuccess(true);
+ArduinoOTA.begin();
+
     Serial.println("Arduino OTA bereit");
 }
 

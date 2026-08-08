@@ -2,6 +2,7 @@
 #include <LittleFS.h>
 #include "HistoryManager.h"
 #include "WateringLogManager.h"
+#include <Update.h>
 
 
 
@@ -36,10 +37,12 @@ void WebManager::begin(PotManager pot[],
    
     setupRoutes();
 
+// FirmwareUpdateManager registriert seine Webseiten
+_firmwareUpdate.begin(_server);
 
 _server.begin();
-    _server.begin();
-    _history.begin();
+
+_history.begin();
 }
 
 
@@ -55,9 +58,61 @@ void WebManager::setupRoutes()
     //-----------------------------------------------------
     // Hauptseite
     //-----------------------------------------------------
-_server.serveStatic("/", LittleFS, "/index.html");
-_server.serveStatic("/style.css", LittleFS, "/style.css");
-_server.serveStatic("/app.js", LittleFS, "/app.js");
+
+_server.serveStatic("/update", LittleFS, "/update.html");
+_server.serveStatic("/update.css", LittleFS, "/update.css");
+_server.serveStatic("/update.js", LittleFS, "/update.js");
+
+
+   
+//-------------------------------------------------
+// Firmware Upload
+//-------------------------------------------------
+
+_server.on("/update", HTTP_POST, [this]()
+{
+    HTTPUpload& upload = _server.upload();
+
+    if(upload.status == UPLOAD_FILE_START)
+    {
+        Serial.printf("Update: %s\n", upload.filename.c_str());
+
+        if(!Update.begin(UPDATE_SIZE_UNKNOWN))
+        {
+            Update.printError(Serial);
+        }
+    }
+    else if(upload.status == UPLOAD_FILE_WRITE)
+    {
+        if(Update.write(upload.buf, upload.currentSize)
+           != upload.currentSize)
+        {
+            Update.printError(Serial);
+        }
+    }
+    else if(upload.status == UPLOAD_FILE_END)
+    {
+        if(Update.end(true))
+        {
+            Serial.println("Firmware erfolgreich.");
+
+            _server.send(200,
+                         "text/plain",
+                         "OK");
+
+            delay(1000);
+            ESP.restart();
+        }
+        else
+        {
+            Update.printError(Serial);
+
+            _server.send(500,
+                         "text/plain",
+                         "FAIL");
+        }
+    }
+});
 
  
 
@@ -186,10 +241,7 @@ _server.on("/api/status", [this]()
             }
         }
 
-        _server.send(200,"text/html",
-            "<script>"
-            "window.location='/'"
-            "</script>");
+        _server.send(200, "application/json", "{\"success\":true}");
     });
 
     //-----------------------------------------------------
@@ -208,10 +260,7 @@ _server.on("/api/status", [this]()
             }
         }
 
-        _server.send(200,"text/html",
-            "<script>"
-            "window.location='/'"
-            "</script>");
+        _server.send(200, "application/json", "{\"success\":true}");
     });
 
     //-----------------------------------------------------
@@ -269,7 +318,6 @@ _server.on("/watering", HTTP_GET, [this]()
 
     std::vector<WateringPoint> watering;
 
-    if(!WateringLog.load(pot, watering))
     if(!WateringLog.load(pot, watering))
 {
     _server.send(200, "application/json", "[]");
@@ -656,15 +704,34 @@ switch(_pot[i].getState())
         break;
 }
 
-json += "\"}";
-    }
+json += "\",";
 
-    json += "]";
-    json += "}";
+// Pumpenstatus
+json += "\"pumpRunning\":";
+json += (_pump->isRunning(i) ? "true" : "false");
+json += ",";
 
-    return json;
+// Restmenge bis Ziel
+float remaining =
+    _pot[i].getTargetWeight() -
+    _pot[i].getWeight();
+
+if (remaining < 0)
+    remaining = 0;
+
+json += "\"remaining\":";
+json += String(remaining, 1);
+json += ",";
+
+// Platzhalter
+json += "\"wateringTime\":0,";
+json += "\"lastWatering\":\"--\"";
+
+json += "}";
 }
-WebServer& WebManager::getServer()
-{
-    return _server;
+
+json += "]";
+json += "}";
+
+return json;
 }

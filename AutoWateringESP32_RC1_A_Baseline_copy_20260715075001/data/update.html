@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1">
+
+<title>Firmware Update</title>
+
+<link rel="stylesheet" href="/update.css">
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>🌱 AutoWatering RC2</h1>
+
+<h2>Firmware Update</h2>
+
+<input
+    id="firmware"
+    type="file"
+    accept=".bin">
+
+<br><br>
+
+<button onclick="uploadFirmware()">
+
+Firmware hochladen
+
+</button>
+
+<br><br>
+
+<progress
+    id="progress"
+    value="0"
+    max="100">
+</progress>
+
+<p id="status">
+
+Bereit.
+
+</p>
+
+<br>
+
+<a href="/">
+
+← Zurück zum Dashboard
+
+</a>
+
+</div>
+
+<script src="/update.js"></script>
+
+</body>
+
+</html>

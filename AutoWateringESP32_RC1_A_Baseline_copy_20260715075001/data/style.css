@@ -1,9 +1,151 @@
 body{
-    font-family:Arial;
-    margin:20px;
-    background:#f2f2f2;
+    margin:0;
+    padding:20px;
+    background:#eef2f5;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+header{
+    margin-bottom:25px;
 }
 
 h1{
-    color:#0b5;
+    margin:0;
+}
+
+#connection{
+    color:#666;
+    margin-top:8px;
+}
+
+#pots{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(280px,1fr));
+
+    gap:18px;
+
+}
+
+.card{
+
+    background:white;
+
+    border-radius:12px;
+
+    padding:18px;
+
+    box-shadow:
+        0 4px 10px rgba(0,0,0,.15);
+
+}
+
+.weight{
+
+    font-size:34px;
+
+    font-weight:bold;
+
+}
+
+.status{
+
+    margin-top:12px;
+
+    font-weight:bold;
+
+}
+.card.idle{
+    border-left:8px solid #28a745;
+}
+
+.card.wait{
+    border-left:8px solid #ffc107;
+}
+
+.card.watering{
+    border-left:8px solid #0d6efd;
+}
+
+.card.error{
+    border-left:8px solid #dc3545;
+}
+.progress{
+    width:100%;
+    height:14px;
+    background:#d9d9d9;
+    border-radius:8px;
+    overflow:hidden;
+    margin:15px 0 10px 0;
+}
+
+.progressbar{
+    height:100%;
+    width:0%;
+    background:#0d6efd;
+    transition:width .4s ease;
+}
+
+.progressText{
+    text-align:center;
+    font-size:14px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+#lastUpdate{
+
+    color:#666;
+
+    font-size:14px;
+
+    margin-top:4px;
+
+    margin-bottom:20px;
+
+}
+.buttons{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+.buttons button{
+
+    flex:1;
+
+    border:none;
+
+    border-radius:8px;
+
+    padding:10px;
+
+    cursor:pointer;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+    transition:.2s;
+
+}
+
+.buttons button:hover{
+    transform:translateY(-2px);
+}
+
+.resetBtn{
+    background:#6c757d;
+    color:white;
+}
+
+.tareBtn{
+    background:#0d6efd;
+    color:white;
+}
+
+.pumpBtn{
+    background:#28a745;
+    color:white;
 }

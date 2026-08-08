@@ -8,7 +8,7 @@
 #include "PumpManager.h"
 #include "StorageManager.h"
 #include "HistoryManager.h"
-
+#include "FirmwareUpdateManager.h"
 
 
 class WebManager
@@ -30,6 +30,7 @@ private:
     PumpManager* _pump;
     StorageManager* _storage;
     HistoryManager _history;
+FirmwareUpdateManager _firmwareUpdate;
 
     void setupRoutes();
     String createWebPage();
