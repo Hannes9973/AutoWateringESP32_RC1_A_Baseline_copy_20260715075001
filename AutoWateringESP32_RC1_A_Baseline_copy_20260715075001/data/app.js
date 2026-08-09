@@ -64,7 +64,7 @@ async function refreshEvents()
 
         events.slice().reverse().forEach(event =>
 {
-    log.innerHTML += event + "<br>";
+    log.innerHTML += `<div class="eventLine">${event}</div>`;
 });
     }
     catch(e)
