@@ -33,6 +33,7 @@ async function refresh()
         }
 
         updateDashboard(data);
+        refreshEvents();
     }
     catch(e)
     {
@@ -43,7 +44,39 @@ async function refresh()
             "Keine Verbindung";
     }
 }
+async function refreshEvents()
+{
+    try
+    {
+        const response =
+            await fetch("/api/events");
 
+        const events =
+            await response.json();
+
+        const log =
+            document.getElementById("eventLog");
+
+        if(!log)
+            return;
+
+        log.innerHTML = "";
+
+        events.slice().reverse().forEach(event =>
+{
+    log.innerHTML += event + "<br>";
+});
+    }
+    catch(e)
+    {
+        const log =
+            document.getElementById("eventLog");
+
+        if(log)
+            log.innerHTML =
+                "Keine Daten";
+    }
+}
 //------------------------------------------------------------
 // Dashboard erzeugen
 //------------------------------------------------------------
@@ -149,6 +182,21 @@ onclick="pumpPot(${index})">
 
 `;
     });
+    container.innerHTML += `
+<div class="card eventCard">
+
+    <h2>📋 Systemprotokoll</h2>
+
+    <div
+        id="eventLog"
+        class="eventLog">
+
+        Lädt...
+
+    </div>
+
+</div>
+`;
 }
 
 //------------------------------------------------------------

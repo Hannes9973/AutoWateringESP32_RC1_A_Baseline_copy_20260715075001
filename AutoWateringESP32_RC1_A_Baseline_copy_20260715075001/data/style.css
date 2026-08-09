@@ -221,3 +221,14 @@ h1{
     border:1px solid #bdbdbd;
     border-radius:6px;
 }
+.eventLog
+{
+    margin-top: 15px;
+    max-height: 260px;
+    overflow-y: auto;
+
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
