@@ -25,6 +25,8 @@
 #include <ArduinoOTA.h>
 #include "OTAManager.h"
 #include "BuildManager.h"
+#include "SystemMonitor.h"
+#include "EventLogger.h"
 
 OTAManager OTA;
 
@@ -37,6 +39,8 @@ CommandManager Command;
 PotManager Pot[NUMBER_OF_POTS];
 WebManager Web;
 HistoryManager History;
+SystemMonitor Monitor;
+EventLogger Logger;
 
 unsigned long lastHistorySave = 0;
 unsigned long lastPrint = 0;
@@ -135,7 +139,8 @@ else
     Events.begin();
     Storage.begin();
     Command.begin();
-    
+    Logger.begin();
+Logger.add("WLAN verbunden");
 
     for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
 {
@@ -150,8 +155,13 @@ else
 }
 
 Web.begin(Pot, &Pump, &Storage);
+Logger.add("WLAN verbunden");
+Logger.add("Webserver gestartet");
 OTA.begin();
+Logger.add("OTA bereit");
 WateringLog.begin();
+Monitor.begin();
+Logger.add("System gestartet");
 
 Serial.println("***** OTA BUILD 2026-08-07 15:30 *****");
 Serial.println("RC2 OTA Test V3");
@@ -173,8 +183,8 @@ void loop()
 
     Scale.update();
     Pump.update();
-OTA.update();
-
+    OTA.update();
+    Monitor.update();
     Command.update(Scale, Pump, Storage, Pot);
 
     for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)

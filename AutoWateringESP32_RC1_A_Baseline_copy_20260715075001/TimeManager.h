@@ -11,7 +11,9 @@ public:
     uint32_t now();
 
     bool isValid();
+String getTimeString();
 
+String getDateTimeString();
 private:
 
     bool _valid = false;
