@@ -3,9 +3,9 @@
 #include "HistoryManager.h"
 #include "WateringLogManager.h"
 #include <Update.h>
+#include "EventLogger.h"
 
-
-
+extern EventLogger Logger;
 
 extern HistoryManager History;
 extern WateringLogManager WateringLog;
@@ -249,6 +249,33 @@ _server.on("/api/status", [this]()
     _server.send(200,
                  "application/json",
                  createStatusJson());
+});
+_server.on("/api/events", HTTP_GET, [this]()
+{
+    String json = "[";
+
+    for(uint8_t i = 0; i < Logger.count(); i++)
+    {
+        if(i > 0)
+            json += ",";
+
+        json += "\"";
+
+        String line = Logger.get(i);
+
+        line.replace("\\", "\\\\");
+        line.replace("\"", "\\\"");
+
+        json += line;
+        json += "\"";
+    }
+
+    json += "]";
+
+    _server.send(
+        200,
+        "application/json",
+        json);
 });
     //-----------------------------------------------------
     // Pumpe EIN

@@ -140,7 +140,6 @@ else
     Storage.begin();
     Command.begin();
     Logger.begin();
-Logger.add("WLAN verbunden");
 
     for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
 {
