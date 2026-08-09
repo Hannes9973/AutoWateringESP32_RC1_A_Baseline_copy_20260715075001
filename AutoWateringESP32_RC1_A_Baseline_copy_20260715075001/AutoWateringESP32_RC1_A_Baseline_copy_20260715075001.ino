@@ -27,7 +27,9 @@
 #include "BuildManager.h"
 #include "SystemMonitor.h"
 #include "EventLogger.h"
-
+#include "WatchdogManager.h"
+#include "WiFiManager.h"
+#include "ResetManager.h"
 OTAManager OTA;
 
 
@@ -40,7 +42,6 @@ PotManager Pot[NUMBER_OF_POTS];
 WebManager Web;
 HistoryManager History;
 SystemMonitor Monitor;
-EventLogger Logger;
 
 unsigned long lastHistorySave = 0;
 unsigned long lastPrint = 0;
@@ -118,6 +119,8 @@ Serial.print("IP-Adresse: ");
 Serial.println(WiFi.localIP());
 Serial.println();
 Serial.println("WLAN verbunden.");
+Serial.print("SDK: ");
+Serial.println(ESP.getSdkVersion());
 
 Time.begin();
 Serial.print("Unix-Zeit: ");
@@ -139,7 +142,9 @@ else
     Events.begin();
     Storage.begin();
     Command.begin();
+    Reset.begin();
     Logger.begin();
+Logger.add("Reset: " + Reset.getReason());
 
     for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
 {
@@ -158,8 +163,13 @@ Logger.add("WLAN verbunden");
 Logger.add("Webserver gestartet");
 OTA.begin();
 Logger.add("OTA bereit");
+WiFiMonitor.begin();
 WateringLog.begin();
 Monitor.begin();
+//Watchdog.begin();
+
+
+//Logger.add("Watchdog gestartet");
 Logger.add("System gestartet");
 
 Serial.println("***** OTA BUILD 2026-08-07 15:30 *****");
@@ -184,6 +194,8 @@ void loop()
     Pump.update();
     OTA.update();
     Monitor.update();
+    //Watchdog.update();
+    WiFiMonitor.update();
     Command.update(Scale, Pump, Storage, Pot);
 
     for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)

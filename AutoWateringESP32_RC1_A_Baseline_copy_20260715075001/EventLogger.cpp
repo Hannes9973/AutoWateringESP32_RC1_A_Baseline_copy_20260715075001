@@ -1,6 +1,8 @@
 #include "EventLogger.h"
 #include "TimeManager.h"
 
+EventLogger Logger;
+
 //------------------------------------------------------
 // Initialisierung
 //------------------------------------------------------

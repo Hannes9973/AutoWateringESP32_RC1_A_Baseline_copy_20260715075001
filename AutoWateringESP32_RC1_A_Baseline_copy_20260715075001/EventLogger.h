@@ -26,4 +26,5 @@ private:
 
 };
 
+extern EventLogger Logger;
 #endif

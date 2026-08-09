@@ -5,40 +5,46 @@
 
 void OTAManager::begin()
 {
-    ArduinoOTA.setHostname("AutoWateringESP32");
+    ArduinoOTA.setHostname("AutoWateringESP32_rc27");
 
-    ArduinoOTA
-        .onStart([]()
-        {
-            Serial.println();
-            Serial.println("===== OTA START =====");
-        });
+    // Genau wie im erfolgreichen OTA-Test
+    ArduinoOTA.setPassword("test");
 
-    ArduinoOTA
-        .onEnd([]()
-        {
-            Serial.println();
-            Serial.println("===== OTA ENDE =====");
-        });
+    ArduinoOTA.onStart([]()
+    {
+        Serial.println();
+        Serial.println("===== OTA START =====");
+    });
 
-    ArduinoOTA
-        .onProgress([](unsigned int progress,
-                       unsigned int total)
-        {
-            Serial.printf("OTA %u %%\r",
-                          (progress * 100) / total);
-        });
+    ArduinoOTA.onEnd([]()
+    {
+        Serial.println();
+        Serial.println("===== OTA ENDE =====");
+    });
 
-    ArduinoOTA
-        .onError([](ota_error_t error)
-        {
-            Serial.printf("OTA Fehler %u\n", error);
-        });
+    ArduinoOTA.onProgress([](unsigned int progress,
+                             unsigned int total)
+    {
+        Serial.printf(
+            "OTA %u %%\r",
+            (progress * 100) / total
+        );
+    });
 
-    ArduinoOTA.setHostname("AutoWateringESP32");
-    ArduinoOTA.setPassword("");
-ArduinoOTA.setRebootOnSuccess(true);
-ArduinoOTA.begin();
+    ArduinoOTA.onError([](ota_error_t error)
+    {
+        Serial.printf(
+            "OTA Fehler %u\n",
+            error
+        );
+    });
+
+    ArduinoOTA.setRebootOnSuccess(true);
+
+    ArduinoOTA.begin();
+
+    Serial.print("OTA Port: ");
+    Serial.println(ArduinoOTA.getHostname());
 
     Serial.println("Arduino OTA bereit");
 }
