@@ -521,7 +521,7 @@ html += "</div>";
         html += "<div class='value'><b>Gewicht:</b> <span id='weight";
 html += String(i);
 html += "'>";
-html += String(_pot[i].getWeight(),1);
+html += String(_pot[i].getWeight(),0);
 html += "</span> g</div>";
 
         //-------------------------------------------------
@@ -579,7 +579,7 @@ html += "</span>";
 
         html += "<div class='value'><b>Zielgewicht:</b><br>";
         html += "<input type='number' step='0.1' name='target' value='";
-        html += String(_pot[i].getTargetWeight(),1);
+        html += String(_pot[i].getTargetWeight(),0);
         html += "'>";
         html += "</div>";
 
@@ -687,7 +687,7 @@ html += "const d=await r.json();";
 
 html += "for(let i=0;i<d.pots.length;i++){";
 
-html += "document.getElementById('weight'+i).innerHTML=d.pots[i].weight.toFixed(1);";
+html += "document.getElementById('weight'+i).innerHTML=d.pots[i].weight.toFixed(0);";
 html += "document.getElementById('state'+i).innerHTML=d.pots[i].state;";
 html += "document.getElementById('state'+i).className=d.pots[i].stateClass;";
 
@@ -733,9 +733,9 @@ String WebManager::createStatusJson()
             json += ",";
 
         json += "{";
-        json += "\"weight\":" + String(_pot[i].getWeight(), 1) + ",";
-        json += "\"start\":" + String(_pot[i].getStartWeight(), 1) + ",";
-        json += "\"target\":" + String(_pot[i].getTargetWeight(), 1) + ",";
+        json += "\"weight\":" + String(_pot[i].getWeight(), 0) + ",";
+        json += "\"start\":" + String(_pot[i].getStartWeight(), 0) + ",";
+        json += "\"target\":" + String(_pot[i].getTargetWeight(), 0) + ",";
         json += "\"state\":\"";
 json += _pot[i].getStateName();
 json += "\",";

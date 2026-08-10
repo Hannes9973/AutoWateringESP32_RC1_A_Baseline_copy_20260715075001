@@ -81,7 +81,7 @@ void printStatus()
             continue;
         }
 
-        Serial.print(Scale.getWeight(i),1);
+        Serial.print(Scale.getWeight(i),0);
         Serial.print(" g RAW=");
         Serial.print(Scale.getRaw(i));
         Serial.print(" Pump=");

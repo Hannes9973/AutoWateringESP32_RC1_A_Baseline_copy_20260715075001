@@ -194,11 +194,11 @@ void CommandManager::printPot(uint8_t potNumber,
     Serial.println(" g");
 
     Serial.print("Start: ");
-    Serial.print(pot[potNumber].getStartWeight(),1);
+    Serial.print(0);
     Serial.println(" g");
 
     Serial.print("Target: ");
-    Serial.print(pot[potNumber].getTargetWeight(),1);
+    Serial.print(pot[potNumber].getTargetWeight(),0);
     Serial.println(" g");
 
     Serial.print("Auto: ");

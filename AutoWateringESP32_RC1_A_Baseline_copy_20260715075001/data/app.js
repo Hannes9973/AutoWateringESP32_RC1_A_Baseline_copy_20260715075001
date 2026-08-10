@@ -212,7 +212,7 @@ function updateDashboard(data)
         //----------------------------------------------------
 
         document.getElementById("weight"+index).innerHTML =
-            pot.weight.toFixed(1) + " g";
+            pot.weight.toFixed(0) + " g";
 
         //----------------------------------------------------
         // Status
@@ -272,13 +272,13 @@ function updateDashboard(data)
         if(document.activeElement.id != "start"+index)
         {
             document.getElementById("start"+index).value =
-                pot.start.toFixed(1);
+                pot.start.toFixed(0);
         }
 
         if(document.activeElement.id != "target"+index)
         {
             document.getElementById("target"+index).value =
-                pot.target.toFixed(1);
+                pot.target.toFixed(0);
         }
 
         //----------------------------------------------------
