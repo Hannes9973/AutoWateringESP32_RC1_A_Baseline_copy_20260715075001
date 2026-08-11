@@ -65,23 +65,25 @@ Serial.println();
 
 
 void printStatus()
-{if(!Command.isVerbose())
 {
-    return;
-}
-    for(uint8_t i=0;i<NUMBER_OF_POTS;i++)
+    if (!Command.isMonitor())
+    {
+        return;
+    }
+
+    for (uint8_t i = 0; i < NUMBER_OF_POTS; i++)
     {
         Serial.print("Topf ");
-        Serial.print(i+1);
+        Serial.print(i + 1);
         Serial.print(": ");
 
-        if(!Scale.isReady(i))
+        if (!Scale.isReady(i))
         {
             Serial.println("HX711 nicht bereit");
             continue;
         }
 
-        Serial.print(Scale.getWeight(i),0);
+        Serial.print(Scale.getWeight(i), 0);
         Serial.print(" g RAW=");
         Serial.print(Scale.getRaw(i));
         Serial.print(" Pump=");

@@ -7,29 +7,15 @@ class PumpManager;
 class StorageManager;
 class PotManager;
 
-//=========================================================
-// CommandManager
-//=========================================================
-
 class CommandManager
 {
 public:
-
-    //-----------------------------------------------------
-    // Konstruktor
-    //-----------------------------------------------------
-
     CommandManager();
 
-    //-----------------------------------------------------
-    // Initialisierung
-    //-----------------------------------------------------
-bool isVerbose() const;
-    void begin();
+    bool isVerbose() const;
+    bool isMonitor() const;
 
-    //-----------------------------------------------------
-    // zyklischer Aufruf
-    //-----------------------------------------------------
+    void begin();
 
     void update(ScaleManager& scale,
                 PumpManager& pump,
@@ -37,38 +23,22 @@ bool isVerbose() const;
                 PotManager pot[]);
 
 private:
-
-    //-----------------------------------------------------
-    // Eingabepuffer
-    //-----------------------------------------------------
-
     char _buffer[64];
-
     uint8_t _index;
-bool _verbose = true;
-    //-----------------------------------------------------
-    // Kommandoverarbeitung
-    //-----------------------------------------------------
+
+    bool _verbose = true;
+    bool _monitor = true;
 
     void processCommand(ScaleManager& scale,
                         PumpManager& pump,
                         StorageManager& storage,
                         PotManager pot[]);
 
-    //-----------------------------------------------------
-    // Hilfsfunktionen
-    //-----------------------------------------------------
-
     bool equals(const char* text) const;
-bool startsWith(const char* text) const;
-    //-----------------------------------------------------
-    // Ausgaben
-    //-----------------------------------------------------
+    bool startsWith(const char* text) const;
 
     void printHelp() const;
-
     void printVersion() const;
-
     void printInfo() const;
 
     void printStatus(ScaleManager& scale,

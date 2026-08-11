@@ -13,99 +13,80 @@
 
 #include <Arduino.h>
 #include <cstring>
+#include <vector>
+
 #include "HistoryManager.h"
 #include "WateringLogManager.h"
 
 extern HistoryManager History;
-#include <vector>
-//=========================================================
-// Konstruktor
-//=========================================================
 
 CommandManager::CommandManager() :
     _index(0)
 {
-    memset(_buffer,0,sizeof(_buffer));
+    memset(_buffer, 0, sizeof(_buffer));
 }
-
-//=========================================================
 
 void CommandManager::begin()
 {
 }
 
-//=========================================================
-
 bool CommandManager::equals(const char* text) const
 {
-    return strcmp(_buffer,text)==0;
+    return strcmp(_buffer, text) == 0;
 }
-
-//=========================================================
 
 bool CommandManager::startsWith(const char* text) const
 {
-    return strncmp(_buffer,text,strlen(text))==0;
+    return strncmp(_buffer, text, strlen(text)) == 0;
 }
-
-//=========================================================
 
 bool CommandManager::isVerbose() const
 {
     return _verbose;
 }
 
-//=========================================================
-// Hilfe
-//=========================================================
+bool CommandManager::isMonitor() const
+{
+    return _monitor;
+}
 
 void CommandManager::printHelp() const
 {
     Serial.println();
     Serial.println("===== Commands =====");
-
     Serial.println("help");
     Serial.println("version");
     Serial.println("info");
     Serial.println("status");
-
     Serial.println();
-
     Serial.println("pot 1");
     Serial.println("pot 2");
     Serial.println("pot 3");
-
     Serial.println();
-
     Serial.println("reset 1");
     Serial.println("reset 2");
     Serial.println("reset 3");
     Serial.println("reset all");
-
     Serial.println();
-
     Serial.println("verbose on");
     Serial.println("verbose off");
-
+    Serial.println("monitor on");
+    Serial.println("monitor off");
     Serial.println();
-
     Serial.println("tare 1");
     Serial.println("tare 2");
     Serial.println("tare 3");
-
-    Serial.println("watering 1");
-Serial.println("watering 2");
-Serial.println("watering 3");
-Serial.println("watering 4");
-
     Serial.println();
-
+    Serial.println("watering 1");
+    Serial.println("watering 2");
+    Serial.println("watering 3");
+    Serial.println("watering 4");
+    Serial.println();
     Serial.println("save");
     Serial.println("load");
-Serial.println("saveconfig");
-Serial.println("loadconfig");
+    Serial.println("saveconfig");
+    Serial.println("loadconfig");
     Serial.println();
-
     Serial.println("pump 1 on");
     Serial.println("pump 1 off");
     Serial.println("pump 2 on");
@@ -113,84 +94,63 @@ Serial.println("loadconfig");
     Serial.println("pump 3 on");
     Serial.println("pump 3 off");
     Serial.println("pump all off");
-
     Serial.println();
-
     Serial.println("setstart <pot> <g>");
     Serial.println("settarget <pot> <g>");
-
     Serial.println("====================");
 }
-
-//=========================================================
 
 void CommandManager::printVersion() const
 {
     Serial.println("AutoWateringESP32 RC1");
 }
 
-//=========================================================
-
 void CommandManager::printInfo() const
 {
     Serial.println("ESP32 Automatic Watering");
 }
 
-//=========================================================
-// Status aller Toepfe
-//=========================================================
-
 void CommandManager::printStatus(ScaleManager& scale,
                                  PumpManager& pump,
                                  PotManager pot[])
 {
-    for(uint8_t i=0;i<NUMBER_OF_POTS;i++)
+    for (uint8_t i = 0; i < NUMBER_OF_POTS; i++)
     {
         Serial.print("Topf ");
-        Serial.print(i+1);
-
+        Serial.print(i + 1);
         Serial.print(": ");
-
-        Serial.print(scale.getWeight(i),1);
+        Serial.print(scale.getWeight(i), 0);
         Serial.print(" g ");
-
         Serial.print("State=");
         Serial.print(pot[i].getStateName());
-
         Serial.print(" Waterings=");
         Serial.print(pot[i].getStatus().wateringCount);
-
         Serial.print(" Errors=");
         Serial.print(pot[i].getErrorCount());
-
         Serial.print(" Pump=");
-        Serial.println(pump.isRunning(i) ? "EIN":"AUS");
+        Serial.println(pump.isRunning(i) ? "EIN" : "AUS");
     }
 }
-
-//=========================================================
-// Detailausgabe eines Topfes
-//=========================================================
 
 void CommandManager::printPot(uint8_t potNumber,
                               ScaleManager& scale,
                               PumpManager& pump,
                               PotManager pot[])
 {
-    if(potNumber>=NUMBER_OF_POTS)
+    if (potNumber >= NUMBER_OF_POTS)
     {
         Serial.println("Ungueltige Topfnummer");
         return;
     }
 
     Serial.print("Topf ");
-    Serial.println(potNumber+1);
+    Serial.println(potNumber + 1);
 
     Serial.print("State: ");
     Serial.println(pot[potNumber].getStateName());
 
     Serial.print("Weight: ");
-    Serial.print(scale.getWeight(potNumber),1);
+    Serial.print(scale.getWeight(potNumber), 0);
     Serial.println(" g");
 
     Serial.print("Start: ");
@@ -198,14 +158,14 @@ void CommandManager::printPot(uint8_t potNumber,
     Serial.println(" g");
 
     Serial.print("Target: ");
-    Serial.print(pot[potNumber].getTargetWeight(),0);
+    Serial.print(pot[potNumber].getTargetWeight(), 0);
     Serial.println(" g");
 
     Serial.print("Auto: ");
-    Serial.println(pot[potNumber].getAutoMode() ? "ON":"OFF");
+    Serial.println(pot[potNumber].getAutoMode() ? "ON" : "OFF");
 
     Serial.print("Pump: ");
-    Serial.println(pump.isRunning(potNumber) ? "ON":"OFF");
+    Serial.println(pump.isRunning(potNumber) ? "ON" : "OFF");
 
     Serial.print("Waterings: ");
     Serial.println(pot[potNumber].getStatus().wateringCount);
@@ -213,317 +173,259 @@ void CommandManager::printPot(uint8_t potNumber,
     Serial.print("Errors: ");
     Serial.println(pot[potNumber].getErrorCount());
 }
-//=========================================================
-// Kommandoverarbeitung
-//=========================================================
 
 void CommandManager::processCommand(ScaleManager& scale,
-                                    PumpManager& pump,
-                                    StorageManager& storage,
-                                    PotManager pot[])
+                                     PumpManager& pump,
+                                     StorageManager& storage,
+                                     PotManager pot[])
 {
     Serial.print("Empfangen: '");
     Serial.print(_buffer);
     Serial.println("'");
-    if(equals("help"))
-    {
+
+    if (equals("help"))
         printHelp();
-    }
-    else if(equals("version"))
-    {
+    else if (equals("version"))
         printVersion();
-    }
-    else if(equals("info"))
-    {
+    else if (equals("info"))
         printInfo();
-    }
-    else if(equals("status"))
-    {
-        printStatus(scale,pump,pot);
-    }
-    else if(startsWith("pot "))
+    else if (equals("status"))
+        printStatus(scale, pump, pot);
+    else if (startsWith("pot "))
     {
         int potIndex = atoi(_buffer + 4) - 1;
-        printPot(potIndex,scale,pump,pot);
+        printPot(potIndex, scale, pump, pot);
     }
-    else if(equals("reset all"))
+    else if (equals("reset all"))
     {
-        for(uint8_t i=0;i<NUMBER_OF_POTS;i++)
-        {
+        for (uint8_t i = 0; i < NUMBER_OF_POTS; i++)
             pot[i].resetState();
-        }
 
         Serial.println("Alle Toepfe wurden zurueckgesetzt.");
     }
-    else if(startsWith("watering clear "))
-{
-    int potIndex = atoi(_buffer + 15) - 1;
-
-    if(potIndex < 0 || potIndex >= NUMBER_OF_POTS)
+    else if (startsWith("watering clear "))
     {
-        Serial.println("Ungueltige Topfnummer");
-    }
-    else
-    {
-        WateringLog.clear(potIndex);
+        int potIndex = atoi(_buffer + 15) - 1;
 
-        Serial.print("Watering Topf ");
-        Serial.print(potIndex + 1);
-        Serial.println(" geloescht.");
-    }
-}
-    else if(startsWith("watering "))
-{
-    int potIndex = atoi(_buffer + 9) - 1;
-
-    if(potIndex < 0 || potIndex >= NUMBER_OF_POTS)
-    {
-        Serial.println("Ungueltige Topfnummer");
-    }
-    else
-    {
-        std::vector<WateringPoint> watering;
-
-        if(!WateringLog.load(potIndex, watering))
-        {
-            Serial.println("Keine Giessereignisse vorhanden.");
-        }
+        if (potIndex < 0 || potIndex >= NUMBER_OF_POTS)
+            Serial.println("Ungueltige Topfnummer");
         else
         {
+            WateringLog.clear(potIndex);
             Serial.print("Watering Topf ");
-            Serial.println(potIndex + 1);
+            Serial.print(potIndex + 1);
+            Serial.println(" geloescht.");
+        }
+    }
+    else if (startsWith("watering "))
+    {
+        int potIndex = atoi(_buffer + 9) - 1;
 
-            for(const auto& p : watering)
+        if (potIndex < 0 || potIndex >= NUMBER_OF_POTS)
+            Serial.println("Ungueltige Topfnummer");
+        else
+        {
+            std::vector<WateringPoint> watering;
+
+            if (!WateringLog.load(potIndex, watering))
+                Serial.println("Keine Giessereignisse vorhanden.");
+            else
             {
-                Serial.print(p.timestamp);
-                Serial.print(" : +");
-                Serial.print(p.amount, 1);
-                Serial.println(" g");
+                Serial.print("Watering Topf ");
+                Serial.println(potIndex + 1);
+
+                for (const auto& p : watering)
+                {
+                    Serial.print(p.timestamp);
+                    Serial.print(" : +");
+                    Serial.print(p.amount, 1);
+                    Serial.println(" g");
+                }
             }
         }
     }
-}
-    else if(startsWith("history "))
-{if(startsWith("history clear "))
-{
-    int potIndex = atoi(_buffer + 14) - 1;
-
-    if(potIndex < 0 || potIndex >= NUMBER_OF_POTS)
+    else if (startsWith("history clear "))
     {
-        Serial.println("Ungueltige Topfnummer");
-    }
-    else
-    {
-        History.clear(potIndex);
+        int potIndex = atoi(_buffer + 14) - 1;
 
-        Serial.print("History Topf ");
-        Serial.print(potIndex + 1);
-        Serial.println(" geloescht.");
-    }
-
-    return;
-}
-    int potIndex = atoi(_buffer + 8) - 1;
-
-    if(potIndex < 0 || potIndex >= NUMBER_OF_POTS)
-    {
-        Serial.println("Ungueltige Topfnummer");
-    }
-    else
-    {
-        std::vector<HistoryPoint> history;
-
-        if(!History.load(potIndex, history))
-        {
-            Serial.println("Keine History vorhanden.");
-        }
+        if (potIndex < 0 || potIndex >= NUMBER_OF_POTS)
+            Serial.println("Ungueltige Topfnummer");
         else
         {
+            History.clear(potIndex);
             Serial.print("History Topf ");
-            Serial.println(potIndex + 1);
+            Serial.print(potIndex + 1);
+            Serial.println(" geloescht.");
+        }
 
-            for(const auto& p : history)
+        return;
+    }
+    else if (startsWith("history "))
+    {
+        int potIndex = atoi(_buffer + 8) - 1;
+
+        if (potIndex < 0 || potIndex >= NUMBER_OF_POTS)
+            Serial.println("Ungueltige Topfnummer");
+        else
+        {
+            std::vector<HistoryPoint> history;
+
+            if (!History.load(potIndex, history))
+                Serial.println("Keine History vorhanden.");
+            else
             {
-                Serial.print(p.timestamp);
-                Serial.print(" s : ");
-                Serial.print(p.weight, 1);
-                Serial.println(" g");
+                Serial.print("History Topf ");
+                Serial.println(potIndex + 1);
+
+                for (const auto& p : history)
+                {
+                    Serial.print(p.timestamp);
+                    Serial.print(" s : ");
+                    Serial.print(p.weight, 1);
+                    Serial.println(" g");
+                }
             }
         }
     }
-}
-    else if(equals("verbose on"))
-{
-    _verbose = true;
-    Serial.println("Verbose ON");
-}
-else if(equals("verbose off"))
-{
-    _verbose = false;
-    Serial.println("Verbose OFF");
-}
-else if(startsWith("setstart "))
-{
-    int potIndex;
-    float value;
-
-    if(sscanf(_buffer, "setstart %d %f", &potIndex, &value) == 2)
+    else if (equals("verbose on"))
     {
-        potIndex--;
+        _verbose = true;
+        Serial.println("Verbose ON");
+    }
+    else if (equals("verbose off"))
+    {
+        _verbose = false;
+        Serial.println("Verbose OFF");
+    }
+    else if (equals("monitor on"))
+    {
+        _monitor = true;
+        Serial.println("Monitor ON");
+    }
+    else if (equals("monitor off"))
+    {
+        _monitor = false;
+        Serial.println("Monitor OFF");
+    }
+    else if (startsWith("setstart "))
+    {
+        int potIndex;
+        float value;
 
-        if(potIndex >= 0 && potIndex < NUMBER_OF_POTS)
+        if (sscanf(_buffer, "setstart %d %f", &potIndex, &value) == 2)
         {
-            pot[potIndex].setStartWeight(value);
+            potIndex--;
 
-            Serial.print("Topf ");
-            Serial.print(potIndex + 1);
-            Serial.print(" Startgewicht = ");
-            Serial.print(value, 1);
-            Serial.println(" g");
+            if (potIndex >= 0 && potIndex < NUMBER_OF_POTS)
+            {
+                pot[potIndex].setStartWeight(value);
+                Serial.print("Topf ");
+                Serial.print(potIndex + 1);
+                Serial.print(" Startgewicht = ");
+                Serial.print(value, 0);
+                Serial.println(" g");
+            }
+            else
+                Serial.println("Ungueltige Topfnummer");
         }
         else
-        {
-            Serial.println("Ungueltige Topfnummer");
-        }
+            Serial.println("Syntax: setstart <Topf> <Gramm>");
     }
-    else
+    else if (startsWith("settarget "))
     {
-        Serial.println("Syntax: setstart <Topf> <Gramm>");
-    }
-}else if(startsWith("settarget "))
-{
-    int potIndex;
-    float value;
+        int potIndex;
+        float value;
 
-    if(sscanf(_buffer, "settarget %d %f", &potIndex, &value) == 2)
-    {
-        potIndex--;
-
-        if(potIndex >= 0 && potIndex < NUMBER_OF_POTS)
+        if (sscanf(_buffer, "settarget %d %f", &potIndex, &value) == 2)
         {
-            pot[potIndex].setTargetWeight(value);
+            potIndex--;
 
-            Serial.print("Topf ");
-            Serial.print(potIndex + 1);
-            Serial.print(" Zielgewicht = ");
-            Serial.print(value, 1);
-            Serial.println(" g");
+            if (potIndex >= 0 && potIndex < NUMBER_OF_POTS)
+            {
+                pot[potIndex].setTargetWeight(value);
+                Serial.print("Topf ");
+                Serial.print(potIndex + 1);
+                Serial.print(" Zielgewicht = ");
+                Serial.print(value, 0);
+                Serial.println(" g");
+            }
+            else
+                Serial.println("Ungueltige Topfnummer");
         }
         else
-        {
-            Serial.println("Ungueltige Topfnummer");
-        }
+            Serial.println("Syntax: settarget <Topf> <Gramm>");
     }
-    else
-    {
-        Serial.println("Syntax: settarget <Topf> <Gramm>");
-    }
-}
-else if(equals("tare 1"))
-    {
+    else if (equals("tare 1"))
         scale.tare(0);
-    }
-    else if(equals("tare 2"))
-    {
+    else if (equals("tare 2"))
         scale.tare(1);
-    }
-    else if(equals("tare 3"))
-    {
+    else if (equals("tare 3"))
         scale.tare(2);
-    }
-    else if(equals("save"))
-{
-    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
-        storage.saveScale(i, scale);
-}
-else if(equals("saveconfig"))
-{
-    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+    else if (equals("save"))
     {
-        storage.savePotConfig(i, pot[i]);
+        for (uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+            storage.saveScale(i, scale);
     }
+    else if (equals("saveconfig"))
+    {
+        for (uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+            storage.savePotConfig(i, pot[i]);
 
-    Serial.println("Topf-Konfiguration gespeichert.");
-}
-else if(equals("loadconfig"))
-{
-    for(uint8_t i = 0; i < NUMBER_OF_POTS; i++)
-    {
-        storage.loadPotConfig(i, pot[i]);
+        Serial.println("Topf-Konfiguration gespeichert.");
     }
-
-    Serial.println("Topf-Konfiguration geladen.");
-}
-else if(equals("load"))
-
+    else if (equals("loadconfig"))
     {
-        for(uint8_t i=0;i<NUMBER_OF_POTS;i++)
-            storage.loadScale(i,scale);
+        for (uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+            storage.loadPotConfig(i, pot[i]);
+
+        Serial.println("Topf-Konfiguration geladen.");
     }
-    else if(equals("pump 1 on"))
+    else if (equals("load"))
     {
+        for (uint8_t i = 0; i < NUMBER_OF_POTS; i++)
+            storage.loadScale(i, scale);
+    }
+    else if (equals("pump 1 on"))
         pump.on(0);
-    }
-    else if(equals("pump 1 off"))
-    {
+    else if (equals("pump 1 off"))
         pump.off(0);
-    }
-    else if(equals("pump 2 on"))
-    {
+    else if (equals("pump 2 on"))
         pump.on(1);
-    }
-    else if(equals("pump 2 off"))
-    {
+    else if (equals("pump 2 off"))
         pump.off(1);
-    }
-    else if(equals("pump 3 on"))
-    {
+    else if (equals("pump 3 on"))
         pump.on(2);
-    }
-    else if(equals("pump 3 off"))
-    {
+    else if (equals("pump 3 off"))
         pump.off(2);
-    }
-    else if(equals("pump all off"))
-    {
+    else if (equals("pump all off"))
         pump.stopAll();
-    }
     else
-    {
         Serial.println("Unbekannter Befehl.");
-    }
 }
-
-//=========================================================
-// Serielle Eingabe
-//=========================================================
 
 void CommandManager::update(ScaleManager& scale,
                             PumpManager& pump,
                             StorageManager& storage,
                             PotManager pot[])
 {
-    while(Serial.available())
+    while (Serial.available())
     {
         char c = Serial.read();
 
-        if(c=='\r' || c=='\n')
+        if (c == '\r' || c == '\n')
         {
-            if(_index>0)
+            if (_index > 0)
             {
-                _buffer[_index]='\0';
+                _buffer[_index] = '\0';
 
-                processCommand(scale,
-                               pump,
-                               storage,
-                               pot);
+                processCommand(scale, pump, storage, pot);
 
-                _index=0;
+                _index = 0;
             }
         }
-        else if(_index<sizeof(_buffer)-1)
+        else if (_index < sizeof(_buffer) - 1)
         {
-            _buffer[_index++]=c;
+            _buffer[_index++] = c;
         }
     }
 }
